@@ -1,6 +1,7 @@
 import time
 import logging
 import threading
+import numpy as np
 import pandas as pd
 from signalflow import *
 from pythonosc import osc_server
@@ -47,6 +48,7 @@ class Spatialiser:
         # Visualiser: General setup
         #--------------------------------------------------------------------------------
         self.visualiser = SimpleUDPClient("127.0.0.1", 9129)
+        self.visualiser.send_message("/source/fade", [0])
         self.visualiser.send_message("/grid/xy/on", [1])
         time.sleep(0.1)
         self.visualiser.send_message("/grid/size", [4])
@@ -67,9 +69,22 @@ class Spatialiser:
         self.visualiser.send_message("/speaker/size", [30.0])
         time.sleep(0.1)
 
+        module_count = 2
+        module_positions = [[0.0, 0.0, 0.0], [1.25, 0, 0.0]]
+        module_rotations = [0, -0.5 * np.pi / 2]
+
         speaker_layout = pd.read_csv("../../Data/allspeaker_pos_v2.csv")
-        for row_index, speaker in list(speaker_layout.iterrows())[:self.num_speakers]:
-            self.add_speaker([speaker.x * 0.001, 0.0, speaker.y * 0.001])
+        for module_index in range(module_count):
+            position = module_positions[module_index]
+            rotation = module_rotations[module_index]
+
+            for row_index, speaker in list(speaker_layout.iterrows())[:self.num_speakers]:
+                module_speaker_x = position[0] + np.cos(rotation) * (speaker.x * 0.001)
+                module_speaker_y = position[1] + np.sin(rotation) * (speaker.x * 0.001)
+                module_speaker_z = position[2] + speaker.y * 0.001
+                self.add_speaker([module_speaker_x,
+                                  module_speaker_y,
+                                  module_speaker_z])
 
         #--------------------------------------------------------------------------------
         # Audio: Add sources
@@ -124,6 +139,7 @@ class Spatialiser:
         self.add_source([0.0, -1.0, 0.1], [1.0, 0.0, 0.0, 1.0])
         self.add_source([0.5, -1.0, 0.1], [0.0, 1.0, 0.0, 1.0])
         self.add_source([1.0, -1.0, 0.1], [0.0, 0.0, 1.0, 1.0])
+        self.add_source([0.75, -1.0, 0.1], [0.0, 1.0, 1.0, 1.0])
 
     def stop(self):
         if not self.is_running:

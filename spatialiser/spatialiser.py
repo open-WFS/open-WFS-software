@@ -31,7 +31,7 @@ class Spatialiser:
         config.input_buffer_size = input_buffer_size
         config.output_buffer_size = output_buffer_size
         self.graph = AudioGraph(config=config, start=False)
-        self.input_channels = AudioIn(4) * 0.1
+        self.input_channels = AudioIn(4) * 0.000000001
         if show_cpu:
             self.graph.poll(1)
         self.is_running = False
@@ -115,15 +115,15 @@ class Spatialiser:
                                       x=Smooth(position[0], 0.999),
                                       y=Smooth(position[1], 0.999),
                                       z=Smooth(position[2], 0.999),
-                                      algorithm="dbap",
+                                      algorithm="beamformer",
                                       radius=0.5,
                                       use_delays=True)
         source.panner.play()
 
     def add_sources(self):
-        self.add_source([0.0, -0.25, 0.1], [1.0, 0.0, 0.0, 1.0])
-        self.add_source([0.5, -0.25, 0.1], [0.0, 1.0, 0.0, 1.0])
-        self.add_source([1.0, -0.25, 0.1], [0.0, 0.0, 1.0, 1.0])
+        self.add_source([0.0, -1.0, 0.1], [1.0, 0.0, 0.0, 1.0])
+        self.add_source([0.5, -1.0, 0.1], [0.0, 1.0, 0.0, 1.0])
+        self.add_source([1.0, -1.0, 0.1], [0.0, 0.0, 1.0, 1.0])
 
     def stop(self):
         if not self.is_running:

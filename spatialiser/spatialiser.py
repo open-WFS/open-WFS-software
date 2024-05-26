@@ -1,4 +1,5 @@
 import time
+import mido
 import logging
 import threading
 import numpy as np
@@ -8,12 +9,37 @@ from pythonosc import osc_server
 from pythonosc.dispatcher import Dispatcher
 from pythonosc.udp_client import SimpleUDPClient
 from .constants import input_device_name, output_device_name, num_speakers, input_buffer_size, output_buffer_size
+from .constants import module_layout
 
 logger = logging.getLogger(__name__)
 
 class SpatialSource:
-    def __init__(self):
+    def __init__(self,
+                 index: int,
+                 position: list[float],
+                 visualiser: SimpleUDPClient):
+        self.index = index
+        self.index_1indexed = self.index + 1
         self.panner = None
+        self.index = index
+        self._position = position
+        self.visualiser = visualiser
+
+    def get_position(self):
+        return self._position
+    def set_position(self, position):
+        print("set_position: %s" % position)
+        self._position = position
+    position = property(get_position, set_position)
+
+    def update_visualisation(self):
+        print("updating vis: %s" % self._position)
+        self.visualiser.send_message("/source/%d/xyz" % self.index_1indexed, self._position)
+
+    def update_panner(self):
+        self.panner.x.input = self._position[0]
+        self.panner.y.input = self._position[1]
+        self.panner.z.input = self._position[2]
 
 class SpatialSpeaker:
     pass
@@ -44,6 +70,10 @@ class Spatialiser:
         self.osc_server = osc_server.ThreadingOSCUDPServer(("127.0.0.1", osc_port),
                                                            dispatcher)
 
+        # Start listening for MIDI events
+        inport = mido.open_input(name="IAC Driver Bus 1")
+        inport.callback = self.handle_midi_message
+
         #--------------------------------------------------------------------------------
         # Visualiser: General setup
         #--------------------------------------------------------------------------------
@@ -69,19 +99,12 @@ class Spatialiser:
         self.visualiser.send_message("/speaker/size", [30.0])
         time.sleep(0.1)
 
-        module_count = 2
-        module_positions = [[0.0, 0.0, 0.0], [1.25, 0, 0.0]]
-        module_rotations = [0, -0.5 * np.pi / 2]
-
         speaker_layout = pd.read_csv("../../Data/allspeaker_pos_v2.csv")
-        for module_index in range(module_count):
-            position = module_positions[module_index]
-            rotation = module_rotations[module_index]
-
+        for module in module_layout:
             for row_index, speaker in list(speaker_layout.iterrows())[:self.num_speakers]:
-                module_speaker_x = position[0] + np.cos(rotation) * (speaker.x * 0.001)
-                module_speaker_y = position[1] + np.sin(rotation) * (speaker.x * 0.001)
-                module_speaker_z = position[2] + speaker.y * 0.001
+                module_speaker_x = module.position[0] + np.cos(module.rotation) * (speaker.x * 0.001)
+                module_speaker_y = module.position[1] + np.sin(module.rotation) * (speaker.x * 0.001)
+                module_speaker_z = module.position[2] + speaker.y * 0.001
                 self.add_speaker([module_speaker_x,
                                   module_speaker_y,
                                   module_speaker_z])
@@ -120,9 +143,10 @@ class Spatialiser:
         self.visualiser.send_message("/source/number", [index_1indexed])
         time.sleep(0.1)
         self.visualiser.send_message("/source/%d/color" % index_1indexed, color)
-        self.visualiser.send_message("/source/%d/xyz" % index_1indexed, position)
 
-        source = SpatialSource()
+        source = SpatialSource(index, position, self.visualiser)
+        # self.visualiser.send_message("/source/%d/xyz" % index_1indexed, position)
+        source.update_visualisation()
         self.sources.append(source)
 
         source.panner = SpatialPanner(env=self.env,
@@ -148,15 +172,38 @@ class Spatialiser:
         self.graph.stop()
         self.is_running = False
 
+    def handle_midi_message(self, msg):
+        logger.debug("MIDI message: %s" % msg)
+        if msg.type == "control_change":
+            source_index = msg.channel
+            control_index = msg.control - 1
+            value = msg.value / 127.0
+            logger.info("Control change: %d %d %f" % (source_index, control_index, value))
+
+            if control_index in [0, 1, 2]:
+                source = self.sources[source_index]
+                value = 5 * value - 2.5
+                position = source.position
+
+                if control_index == 0:
+                    position[0] = value
+                elif control_index == 1:
+                    position[1] = value
+                elif control_index == 2:
+                    position[2] = value
+
+                source.position = position
+                source.update_visualisation()
+                source.update_panner()
+
     def handle_osc_set_source_position(self, address, *args):
         # address format: /source/*/xyz
         address_parts = address.split("/")
         source_index = int(address_parts[2]) - 1
         x, y, z = args
         logger.debug("Set source %d position: %s %s %s" % (source_index, x, y, z))
-        self.sources[source_index].panner.x.input = x
-        self.sources[source_index].panner.y.input = y
-        self.sources[source_index].panner.z.input = z
+        self.sources[source_index].position = [x, y, z]
+        self.sources[source_index].update_panner()
 
     def handle_osc(self, address, *args):
         logger.warning("OSC address not handled: %s (%s)" % (address, args))

@@ -37,6 +37,7 @@ class SpatialSource:
         self.visualiser.send_message("/source/%d/xyz" % self.index_1indexed, self._position)
 
     def update_panner(self):
+        print("Updating panner - %s" % self._position)
         self.panner.x.input = self._position[0]
         self.panner.y.input = self._position[1]
         self.panner.z.input = self._position[2]
@@ -145,10 +146,7 @@ class Spatialiser:
         self.visualiser.send_message("/source/%d/color" % index_1indexed, color)
 
         source = SpatialSource(index, position, self.visualiser)
-        # self.visualiser.send_message("/source/%d/xyz" % index_1indexed, position)
         source.update_visualisation()
-        self.sources.append(source)
-
         source.panner = SpatialPanner(env=self.env,
                                       input=self.input_channels[index],
                                       x=Smooth(position[0], 0.999),
@@ -158,6 +156,7 @@ class Spatialiser:
                                       radius=0.5,
                                       use_delays=True)
         source.panner.play()
+        self.sources.append(source)
 
     def add_sources(self):
         self.add_source([0.0, -1.0, 0.1], [1.0, 0.0, 0.0, 1.0])

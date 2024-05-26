@@ -1,3 +1,5 @@
+mido
+python-rtmidi
 pandas
 numpy
 python-osc

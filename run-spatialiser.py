@@ -2,6 +2,7 @@
 
 from spatialiser import Spatialiser
 import coloredlogs
+import numpy as np
 import argparse
 import time
 
@@ -14,7 +15,12 @@ def main(args):
         if args.sound_check:
             spatialiser.run_sound_check()
         while True:
-            time.sleep(1)
+            input_buffer = spatialiser.input_channels.output_buffer[0]
+            input_buffer_rms = np.sqrt(np.mean(np.square(input_buffer)))
+            input_buffer_rms_db = 20.0 * np.log10(input_buffer_rms)
+            print("Input RMS: %.2fdB" % input_buffer_rms_db)
+            print("%f, %f" % (input_buffer[0], input_buffer[1]))
+            time.sleep(2)
     except KeyboardInterrupt:
         print("Terminating...")
         spatialiser.stop()

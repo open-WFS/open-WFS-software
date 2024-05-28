@@ -38,9 +38,9 @@ class SpatialSource:
 
     def update_panner(self):
         print("Updating panner - %s" % self._position)
-        self.panner.x.input = self._position[0]
-        self.panner.y.input = self._position[1]
-        self.panner.z.input = self._position[2]
+        self.x.input = self._position[0]
+        self.y.input = self._position[1]
+        self.z.input = self._position[2]
 
 class SpatialSpeaker:
     pass
@@ -51,7 +51,7 @@ class Spatialiser:
         Args:
             osc_port: The port to listen for OSC messages on. Default is 9130, which is the port used by the
                        source-viewer node application.
-            show_cpu: If True, show CPU usage in the console.
+            show _cpu: If True, show CPU usage in the console.
         """
         config = AudioGraphConfig()
         config.input_device_name = input_device_name
@@ -61,7 +61,7 @@ class Spatialiser:
         self.graph = AudioGraph(config=config, start=False)
         # self.input_channels = AudioIn(8) * 0.000000001
         # self.input_channels = AudioIn(8) * 0.01
-        self.input_channels = AudioIn(8) * 0.0001
+        self.input_channels = AudioIn(8) * 0.01
         if show_cpu:
             self.graph.poll(1)
         self.is_running = False
@@ -149,11 +149,17 @@ class Spatialiser:
 
         source = SpatialSource(index, position, self.visualiser)
         source.update_visualisation()
+        source.x = Smooth(position[0], 0.999)
+        source.y = Smooth(position[1], 0.999)
+        source.z = Smooth(position[2], 0.999)
+        import random
+        sine_x_freq = random.uniform(0.1, 1.0)
+        sine_y_freq = random.uniform(0.1, 1.0)
         source.panner = SpatialPanner(env=self.env,
                                       input=self.input_channels[index],
-                                      x=Smooth(position[0], 0.999),
-                                      y=Smooth(position[1], 0.999),
-                                      z=Smooth(position[2], 0.999),
+                                      x=source.x + SineLFO(sine_x_freq, 0.0, 0.0),
+                                      y=source.y + SineLFO(sine_y_freq, 0.0, 0.0, phase=-np.pi/4),
+                                      z=source.z,
                                       algorithm="beamformer",
                                       radius=0.5,
                                       use_delays=True)
@@ -166,14 +172,19 @@ class Spatialiser:
     def add_sources(self):
         colors = [
             [1.0, 0.0, 0.0, 1.0],
+            [1.0, 0.5, 0.0, 1.0],
             [1.0, 1.0, 0.0, 1.0],
+            [0.5, 1.0, 0.0, 1.0],
             [0.0, 1.0, 0.0, 1.0],
+            [0.0, 1.0, 0.5, 1.0],
             [0.0, 1.0, 1.0, 1.0],
+            [0.0, 0.5, 1.0, 1.0],
             [0.0, 0.0, 1.0, 1.0],
+            [0.5, 0.0, 1.0, 1.0],
             [1.0, 0.0, 1.0, 1.0],
         ]
         for source_index in range(num_sources):
-            self.add_source([0.0 + 0.5 * source_index, -1.0, 0.1], colors[source_index])
+            self.add_source([0.0 + 0.25 * source_index, -1.0, 0.1], colors[source_index])
 
     def stop(self):
         if not self.is_running:
@@ -192,7 +203,7 @@ class Spatialiser:
 
             if control_index in [0, 1, 2]:
                 source = self.sources[source_index]
-                value = 5 * value - 2.5
+                value = 2 * value - 1
                 position = source.position
 
                 if control_index == 0:

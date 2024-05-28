@@ -11,8 +11,8 @@ output_device_name = "Digiface AVB (24119914)"
 input_buffer_size = 256
 output_buffer_size = 256
 
-num_speakers = 64
-num_sources = 1
+num_speakers = 32
+num_sources = 8
 
 @dataclass
 class Module:

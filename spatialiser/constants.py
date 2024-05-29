@@ -17,6 +17,7 @@ num_sources = 8
 
 environment_radius_x = 0.5
 environment_radius_y = 0.5
+environment_radius_z = 0.5
 
 @dataclass
 class Module:
@@ -26,4 +27,18 @@ class Module:
 module_layout = [
     Module([0.0, 0.5, 0.0], 0),
     Module([0.5, 0, 0.0], -1.0 * np.pi / 2),
+]
+
+source_colours = [
+    [1.0, 0.0, 0.0, 1.0],
+    [1.0, 0.5, 0.0, 1.0],
+    [1.0, 1.0, 0.0, 1.0],
+    [0.5, 1.0, 0.0, 1.0],
+    [0.0, 1.0, 0.0, 1.0],
+    [0.0, 1.0, 0.5, 1.0],
+    [0.0, 1.0, 1.0, 1.0],
+    [0.0, 0.5, 1.0, 1.0],
+    [0.0, 0.0, 1.0, 1.0],
+    [0.5, 0.0, 1.0, 1.0],
+    [1.0, 0.0, 1.0, 1.0],
 ]

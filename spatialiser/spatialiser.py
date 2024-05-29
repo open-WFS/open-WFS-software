@@ -1,5 +1,6 @@
 import time
 import mido
+import random
 import logging
 import threading
 import numpy as np
@@ -10,7 +11,7 @@ from pythonosc.dispatcher import Dispatcher
 from pythonosc.udp_client import SimpleUDPClient
 from .constants import input_device_name, output_device_name, num_speakers, input_buffer_size, output_buffer_size
 from .constants import module_layout, num_sources, num_speakers_per_module
-from .constants import environment_radius_x, environment_radius_y
+from .constants import environment_radius_x, environment_radius_y, environment_radius_z, source_colours
 
 logger = logging.getLogger(__name__)
 
@@ -25,20 +26,43 @@ class SpatialSource:
         self.index = index
         self._position = position
         self.visualiser = visualiser
+        self.xsin_amp = random.uniform(0.25, 0.5)
+        self.xsin_freq = random.uniform(0.25, 1.0)
+        self.xsin_amp = 0
+        self.xsin_freq = 0
+        self.xphase = 0.0
+        self.ysin_amp = random.uniform(0.25, 0.5)
+        self.ysin_amp = 0
+        self.ysin_freq = random.uniform(0.25, 1.0)
+        self.ysin_freq = 0
+        self.yphase = 0.0
+
+    def tick(self, delta_seconds: float):
+        self.xphase += self.xsin_freq * delta_seconds
+        while self.xphase > np.pi * 2:
+            self.xphase -= np.pi * 2
+
+        self.yphase += self.ysin_freq * delta_seconds
+        while self.yphase > np.pi * 2:
+            self.yphase -= np.pi * 2
 
     def get_position(self):
-        return self._position
+        return [
+            self._position[0] + self.xsin_amp * np.sin(self.xphase * np.pi * 2),
+            self._position[1] + self.ysin_amp * np.cos(self.yphase * np.pi * 2),
+            self._position[2]
+        ]
+
     def set_position(self, position):
-        # print("set_position: %s" % position)
         self._position = position
     position = property(get_position, set_position)
 
     def update_visualisation(self):
-        logger.debug("[Source %02d] Updating panner: %s" % (self.index_1indexed, self._position))
-        self.visualiser.send_message("/source/%d/xyz" % self.index_1indexed, self._position)
+        logger.debug("[Source %02d] Updating visualiser: %s" % (self.index_1indexed, self.position))
+        self.visualiser.send_message("/source/%d/xyz" % self.index_1indexed, self.position)
 
     def update_panner(self):
-        logger.info("[Source %02d] Updating panner: %s" % (self.index_1indexed, self._position))
+        logger.debug("[Source %02d] Updating panner: %s" % (self.index_1indexed, self._position))
         self.x.input = self._position[0]
         self.y.input = self._position[1]
         self.z.input = self._position[2]
@@ -60,8 +84,6 @@ class Spatialiser:
         config.input_buffer_size = input_buffer_size
         config.output_buffer_size = output_buffer_size
         self.graph = AudioGraph(config=config, start=False)
-        # self.input_channels = AudioIn(8) * 0.000000001
-        # self.input_channels = AudioIn(8) * 0.01
         self.input_channels = AudioIn(8) * 0.01
         if show_cpu:
             self.graph.poll(1)
@@ -129,17 +151,30 @@ class Spatialiser:
         time.sleep(0.1)
         self.visualiser.send_message("/source/numDisplay", [1])
 
-    def run(self):
+    def run_animation_thread(self):
+        while self.is_running:
+            delta = 0.02
+            for source in self.sources:
+                source.tick(delta)
+                source.update_visualisation()
+            time.sleep(delta)
+
+    def run_osc_thread(self):
         self.osc_server.serve_forever()
 
     def start(self):
         if self.is_running:
             return
+        self.is_running = True
+
         self.graph.start()
-        self.thread = threading.Thread(target=self.run)
+        self.thread = threading.Thread(target=self.run_osc_thread)
         self.thread.daemon = True
         self.thread.start()
-        self.is_running = True
+
+        self.animation_thread = threading.Thread(target=self.run_animation_thread)
+        self.animation_thread.daemon = True
+        self.animation_thread.start()
 
     def add_speaker(self, position: list):
         index = len(self.speakers)
@@ -163,13 +198,10 @@ class Spatialiser:
         source.x = Smooth(position[0], 0.999)
         source.y = Smooth(position[1], 0.999)
         source.z = Smooth(position[2], 0.999)
-        import random
-        sine_x_freq = random.uniform(0.1, 1.0)
-        sine_y_freq = random.uniform(0.1, 1.0)
         source.panner = SpatialPanner(env=self.env,
                                       input=self.input_channels[index],
-                                      x=source.x + SineLFO(sine_x_freq, 0.0, 0.0),
-                                      y=source.y + SineLFO(sine_y_freq, 0.0, 0.0, phase=-np.pi/4),
+                                      x=source.x,
+                                      y=source.y,
                                       z=source.z,
                                       algorithm="beamformer",
                                       radius=0.5,
@@ -177,25 +209,11 @@ class Spatialiser:
         # TODO: Really want a soft limiter
         source.limiter = Clip(source.panner, min=-0.05, max=0.05)
         source.limiter.play()
-        # source.panner.play()
         self.sources.append(source)
 
     def add_sources(self):
-        colors = [
-            [1.0, 0.0, 0.0, 1.0],
-            [1.0, 0.5, 0.0, 1.0],
-            [1.0, 1.0, 0.0, 1.0],
-            [0.5, 1.0, 0.0, 1.0],
-            [0.0, 1.0, 0.0, 1.0],
-            [0.0, 1.0, 0.5, 1.0],
-            [0.0, 1.0, 1.0, 1.0],
-            [0.0, 0.5, 1.0, 1.0],
-            [0.0, 0.0, 1.0, 1.0],
-            [0.5, 0.0, 1.0, 1.0],
-            [1.0, 0.0, 1.0, 1.0],
-        ]
         for source_index in range(num_sources):
-            self.add_source([-0.75 + 0.25 * source_index, -1.0, 0.0], colors[source_index])
+            self.add_source([-0.75 + 0.25 * source_index, -1.0, 0.0], source_colours[source_index])
 
     def stop(self):
         if not self.is_running:
@@ -241,6 +259,22 @@ class Spatialiser:
         return (value * environment_diameter_z) - environment_radius_z
 
     def handle_midi_message(self, msg):
+        """
+        MIDI control changes:
+          0 = x
+          1 = y
+          2 = z
+          3 = xsin-amp
+          4 = xsin-freq
+          5 = ysin-amp
+          6 = ysin-freq
+
+        Args:
+            msg:
+
+        Returns:
+
+        """
         logger.debug("MIDI message: %s" % msg)
         if msg.type == "control_change":
             source_index = msg.channel
@@ -248,20 +282,29 @@ class Spatialiser:
             value = msg.value / 127.0
             logger.debug("[MIDI] Control change: %d %d %f" % (source_index, control_index, value))
 
+            source = self.sources[source_index]
             if control_index in [0, 1, 2]:
-                source = self.sources[source_index]
-                position = source.position
-
+                # TODO - rewrite this to not access private _position
+                position = source._position
                 if control_index == 0:
                     position[0] = self.scale_normalised_x_to_position(value)
                 elif control_index == 1:
                     position[1] = self.scale_normalised_y_to_position(value)
                 elif control_index == 2:
                     position[2] = self.scale_normalised_z_to_position(value)
+                source._position = position
+            elif control_index == 3:
+                source.xsin_amp = value
+            elif control_index == 4:
+                source.xsin_freq = scale_lin_exp(value, 0, 1, 0.01, 10.0)
+            elif control_index == 5:
+                source.ysin_amp = value
+            elif control_index == 6:
+                source.ysin_freq = scale_lin_exp(value, 0, 1, 0.01, 10.0)
 
-                source.position = position
-                source.update_visualisation()
-                source.update_panner()
+            source.update_visualisation()
+            source.update_panner()
+
 
     def handle_osc_set_source_position(self, address, *args):
         # address format: /source/*/xyz

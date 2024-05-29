@@ -9,7 +9,8 @@ from pythonosc import osc_server
 from pythonosc.dispatcher import Dispatcher
 from pythonosc.udp_client import SimpleUDPClient
 from .constants import input_device_name, output_device_name, num_speakers, input_buffer_size, output_buffer_size
-from .constants import module_layout, num_sources
+from .constants import module_layout, num_sources, num_speakers_per_module
+from .constants import environment_radius_x, environment_radius_y
 
 logger = logging.getLogger(__name__)
 
@@ -28,16 +29,16 @@ class SpatialSource:
     def get_position(self):
         return self._position
     def set_position(self, position):
-        print("set_position: %s" % position)
+        # print("set_position: %s" % position)
         self._position = position
     position = property(get_position, set_position)
 
     def update_visualisation(self):
-        print("updating vis: %s" % self._position)
+        logger.debug("[Source %02d] Updating panner: %s" % (self.index_1indexed, self._position))
         self.visualiser.send_message("/source/%d/xyz" % self.index_1indexed, self._position)
 
     def update_panner(self):
-        print("Updating panner - %s" % self._position)
+        logger.info("[Source %02d] Updating panner: %s" % (self.index_1indexed, self._position))
         self.x.input = self._position[0]
         self.y.input = self._position[1]
         self.z.input = self._position[2]
@@ -81,7 +82,6 @@ class Spatialiser:
         # Visualiser: General setup
         #--------------------------------------------------------------------------------
         self.visualiser = SimpleUDPClient("127.0.0.1", 9129)
-        self.visualiser.send_message("/source/fade", [0])
         self.visualiser.send_message("/grid/xy/on", [1])
         time.sleep(0.1)
         self.visualiser.send_message("/grid/size", [4])
@@ -89,6 +89,8 @@ class Spatialiser:
         self.visualiser.send_message("/grid/subdiv/num", [10])
         time.sleep(0.1)
         self.visualiser.send_message("/source/size", [30.0])
+        self.visualiser.send_message("/source/fade", [0])
+
 
         #--------------------------------------------------------------------------------
         # Audio: Add speakers
@@ -103,8 +105,13 @@ class Spatialiser:
         time.sleep(0.1)
 
         speaker_layout = pd.read_csv("../../Data/allspeaker_pos_v2.csv")
+        mean_speaker_x = (speaker_layout.x.max() + speaker_layout.x.min()) / 2
+        mean_speaker_y = (speaker_layout.y.max() + speaker_layout.y.min()) / 2
+        speaker_layout.x = speaker_layout.x - mean_speaker_x
+        speaker_layout.y = speaker_layout.y - mean_speaker_y
+
         for module in module_layout:
-            for row_index, speaker in list(speaker_layout.iterrows())[:self.num_speakers]:
+            for row_index, speaker in list(speaker_layout.iterrows())[:num_speakers_per_module]:
                 module_speaker_x = module.position[0] + np.cos(module.rotation) * (speaker.x * 0.001)
                 module_speaker_y = module.position[1] + np.sin(module.rotation) * (speaker.x * 0.001)
                 module_speaker_z = module.position[2] + speaker.y * 0.001
@@ -117,6 +124,10 @@ class Spatialiser:
         #--------------------------------------------------------------------------------
         self.sources = []
         self.add_sources()
+
+        # this has to be called after sources have been created
+        time.sleep(0.1)
+        self.visualiser.send_message("/source/numDisplay", [1])
 
     def run(self):
         self.osc_server.serve_forever()
@@ -132,7 +143,7 @@ class Spatialiser:
 
     def add_speaker(self, position: list):
         index = len(self.speakers)
-        logger.debug("Added speaker %d: %s" % (index, position))
+        logger.info("Add speaker %d: %s" % (index, position))
         self.env.add_speaker(index, *position)
         self.visualiser.send_message("/speaker/%d/xyz" % (index + 1), position)
         speaker = SpatialSpeaker()
@@ -184,7 +195,7 @@ class Spatialiser:
             [1.0, 0.0, 1.0, 1.0],
         ]
         for source_index in range(num_sources):
-            self.add_source([0.0 + 0.25 * source_index, -1.0, 0.1], colors[source_index])
+            self.add_source([-0.75 + 0.25 * source_index, -1.0, 0.0], colors[source_index])
 
     def stop(self):
         if not self.is_running:
@@ -193,25 +204,60 @@ class Spatialiser:
         self.graph.stop()
         self.is_running = False
 
+    def scale_normalised_x_to_position(self, value: float):
+        """
+        Scale a normalised [0..1] value to an X position in the environment.
+        Args:
+            value: A normalised value in the range [0..1]
+
+        Returns:
+            The X coordinate, in metres
+        """
+        environment_diameter_x = (environment_radius_x * 2)
+        return (value * environment_diameter_x) - environment_radius_x
+
+    def scale_normalised_y_to_position(self, value: float):
+        """
+        Scale a normalised [0..1] value to a Y position in the environment.
+        Args:
+            value: A normalised value in the range [0..1]
+
+        Returns:
+            The Y coordinate, in metres
+        """
+        environment_diameter_y = (environment_radius_y * 2)
+        return (value * environment_diameter_y) - environment_radius_y
+
+    def scale_normalised_z_to_position(self, value: float):
+        """
+        Scale a normalised [0..1] value to a Z position in the environment.
+        Args:
+            value: A normalised value in the range [0..1]
+
+        Returns:
+            The Z coordinate, in metres
+        """
+        environment_diameter_z = (environment_radius_z * 2)
+        return (value * environment_diameter_z) - environment_radius_z
+
     def handle_midi_message(self, msg):
         logger.debug("MIDI message: %s" % msg)
         if msg.type == "control_change":
             source_index = msg.channel
             control_index = msg.control - 1
             value = msg.value / 127.0
-            logger.info("Control change: %d %d %f" % (source_index, control_index, value))
+            logger.debug("[MIDI] Control change: %d %d %f" % (source_index, control_index, value))
 
             if control_index in [0, 1, 2]:
                 source = self.sources[source_index]
-                value = 2 * value - 1
                 position = source.position
 
                 if control_index == 0:
-                    position[0] = value
+                    position[0] = self.scale_normalised_x_to_position(value)
                 elif control_index == 1:
-                    position[1] = value
+                    position[1] = self.scale_normalised_y_to_position(value)
                 elif control_index == 2:
-                    position[2] = value
+                    position[2] = self.scale_normalised_z_to_position(value)
 
                 source.position = position
                 source.update_visualisation()
@@ -236,3 +282,12 @@ class Spatialiser:
         counter = Counter(clock, 0, self.num_speakers)
         panner = ChannelPanner(self.num_speakers, input=source, pan=counter)
         panner.play()
+
+    def tick(self):
+        input_buffer = self.input_channels.output_buffer[0]
+        input_buffer_rms = np.sqrt(np.mean(np.square(input_buffer)))
+        if input_buffer_rms == 0:
+            logger.info("Input RMS: 0")
+        else:
+            input_buffer_rms_db = 20.0 * np.log10(input_buffer_rms)
+            logger.info("Input RMS: %.2fdB" % input_buffer_rms_db)

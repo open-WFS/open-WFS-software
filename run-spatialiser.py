@@ -15,11 +15,7 @@ def main(args):
         if args.sound_check:
             spatialiser.run_sound_check()
         while True:
-            input_buffer = spatialiser.input_channels.output_buffer[0]
-            input_buffer_rms = np.sqrt(np.mean(np.square(input_buffer)))
-            input_buffer_rms_db = 20.0 * np.log10(input_buffer_rms)
-            print("Input RMS: %.2fdB" % input_buffer_rms_db)
-            print("%f, %f" % (input_buffer[0], input_buffer[1]))
+            spatialiser.tick()
             time.sleep(2)
     except KeyboardInterrupt:
         print("Terminating...")
@@ -33,8 +29,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.verbose:
-        coloredlogs.install(level="DEBUG")
+        coloredlogs.install(level="DEBUG", format="%(asctime)s %(levelname)s %(message)s")
     else:
-        coloredlogs.install(level="INFO")
+        coloredlogs.install(level="INFO", format="%(asctime)s %(levelname)s %(message)s")
 
     main(args)

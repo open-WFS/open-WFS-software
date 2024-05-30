@@ -10,10 +10,11 @@ from pythonosc import osc_server
 from pythonosc.dispatcher import Dispatcher
 from pythonosc.udp_client import SimpleUDPClient
 from .constants import input_device_name, output_device_name, num_speakers, input_buffer_size, output_buffer_size
-from .constants import module_layout, num_sources, num_speakers_per_module
+from .constants import module_layout, num_sources, num_speakers_per_module, disable_lfe
 from .constants import environment_radius_x, environment_radius_y, environment_radius_z, source_colours
 
 logger = logging.getLogger(__name__)
+
 
 class SpatialSource:
     def __init__(self,
@@ -26,14 +27,14 @@ class SpatialSource:
         self.index = index
         self._position = position
         self.visualiser = visualiser
-        self.xsin_amp = random.uniform(0.25, 0.5)
+        self.xsin_amp = random.uniform(0.1, 0.25)
         self.xsin_freq = random.uniform(0.25, 1.0)
         self.xsin_amp = 0
         self.xsin_freq = 0
         self.xphase = 0.0
-        self.ysin_amp = random.uniform(0.25, 0.5)
-        self.ysin_amp = 0
+        self.ysin_amp = random.uniform(0.1, 0.25)
         self.ysin_freq = random.uniform(0.25, 1.0)
+        self.ysin_amp = 0
         self.ysin_freq = 0
         self.yphase = 0.0
 
@@ -55,6 +56,7 @@ class SpatialSource:
 
     def set_position(self, position):
         self._position = position
+
     position = property(get_position, set_position)
 
     def update_visualisation(self):
@@ -62,13 +64,16 @@ class SpatialSource:
         self.visualiser.send_message("/source/%d/xyz" % self.index_1indexed, self.position)
 
     def update_panner(self):
-        logger.debug("[Source %02d] Updating panner: %s" % (self.index_1indexed, self._position))
-        self.x.input = self._position[0]
-        self.y.input = self._position[1]
-        self.z.input = self._position[2]
+        position = self.position
+        logger.debug("[Source %02d] Updating panner: %s" % (self.index_1indexed, position))
+        self.x.input = position[0]
+        self.y.input = position[1]
+        self.z.input = position[2]
+
 
 class SpatialSpeaker:
     pass
+
 
 class Spatialiser:
     def __init__(self, osc_port: int = 9130, show_cpu: bool = False):
@@ -84,7 +89,12 @@ class Spatialiser:
         config.input_buffer_size = input_buffer_size
         config.output_buffer_size = output_buffer_size
         self.graph = AudioGraph(config=config, start=False)
-        self.input_channels = AudioIn(8) * 0.01
+        self.raw_input_channels = AudioIn(8) * 0.05
+        # TODO: Why does BiquadFilter not work here?
+        self.input_channels = SVFilter(input=self.raw_input_channels,
+                                       filter_type="high_pass",
+                                       resonance=0.0,
+                                       cutoff=400)
         if show_cpu:
             self.graph.poll(1)
         self.is_running = False
@@ -100,9 +110,9 @@ class Spatialiser:
         inport = mido.open_input(name="IAC Driver Bus 1")
         inport.callback = self.handle_midi_message
 
-        #--------------------------------------------------------------------------------
+        # --------------------------------------------------------------------------------
         # Visualiser: General setup
-        #--------------------------------------------------------------------------------
+        # --------------------------------------------------------------------------------
         self.visualiser = SimpleUDPClient("127.0.0.1", 9129)
         self.visualiser.send_message("/grid/xy/on", [1])
         time.sleep(0.1)
@@ -113,16 +123,15 @@ class Spatialiser:
         self.visualiser.send_message("/source/size", [30.0])
         self.visualiser.send_message("/source/fade", [0])
 
-
-        #--------------------------------------------------------------------------------
+        # --------------------------------------------------------------------------------
         # Audio: Add speakers
-        #--------------------------------------------------------------------------------
+        # --------------------------------------------------------------------------------
         self.speakers = []
         self.num_speakers = num_speakers
         self.env = SpatialEnvironment()
 
         self.visualiser.send_message("/speaker/number", [num_speakers])
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.visualiser.send_message("/speaker/size", [30.0])
         time.sleep(0.1)
 
@@ -141,9 +150,9 @@ class Spatialiser:
                                   module_speaker_y,
                                   module_speaker_z])
 
-        #--------------------------------------------------------------------------------
+        # --------------------------------------------------------------------------------
         # Audio: Add sources
-        #--------------------------------------------------------------------------------
+        # --------------------------------------------------------------------------------
         self.sources = []
         self.add_sources()
 
@@ -151,12 +160,26 @@ class Spatialiser:
         time.sleep(0.1)
         self.visualiser.send_message("/source/numDisplay", [1])
 
+        # pan LFE to last channel
+        if not disable_lfe:
+            self.mono_mixdown = ChannelMixer(1, input=self.raw_input_channels)
+            self.lfe_channel = SVFilter(input=self.mono_mixdown,
+                                        filter_type="low_pass",
+                                        resonance=0.0,
+                                        cutoff=400) * 20
+
+            self.lfe_panner = ChannelPanner(num_channels=64,
+                                            input=self.lfe_channel,
+                                            pan=62)
+            self.lfe_panner.play()
+
     def run_animation_thread(self):
         while self.is_running:
             delta = 0.02
             for source in self.sources:
                 source.tick(delta)
                 source.update_visualisation()
+                source.update_panner()
             time.sleep(delta)
 
     def run_osc_thread(self):
@@ -213,7 +236,7 @@ class Spatialiser:
 
     def add_sources(self):
         for source_index in range(num_sources):
-            self.add_source([-0.75 + 0.25 * source_index, -1.0, 0.0], source_colours[source_index])
+            self.add_source([-0.75 + 0.25 * source_index, -0.5, 0.0], source_colours[source_index])
 
     def stop(self):
         if not self.is_running:
@@ -304,7 +327,6 @@ class Spatialiser:
 
             source.update_visualisation()
             source.update_panner()
-
 
     def handle_osc_set_source_position(self, address, *args):
         # address format: /source/*/xyz

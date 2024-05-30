@@ -14,12 +14,12 @@ from .constants import module_layout, num_sources, num_speakers_per_module, disa
 from .constants import environment_radius_x, environment_radius_y, environment_radius_z, source_colours, disable_midi
 from .constants import crossover_frequency
 from .source import SpatialSource
-
+from dataclasses import dataclass
 logger = logging.getLogger(__name__)
 
-
+@dataclass
 class SpatialSpeaker:
-    pass
+    position: list
 
 
 class Spatialiser:
@@ -113,7 +113,6 @@ class Spatialiser:
             return
         self.is_running = True
 
-        self.graph.start()
         self.thread = threading.Thread(target=self.run_osc_thread)
         self.thread.daemon = True
         self.thread.start()
@@ -127,7 +126,7 @@ class Spatialiser:
         logger.info("Add speaker %d: %s" % (index, position))
         # self.env.add_speaker(index, *position)
         self.visualiser.send_message("/speaker/%d/xyz" % (index + 1), position)
-        speaker = SpatialSpeaker()
+        speaker = SpatialSpeaker(position)
         self.speakers.append(speaker)
 
     def add_source(self, index: int, position: list, color: list):
@@ -139,8 +138,9 @@ class Spatialiser:
         self.visualiser.send_message("/source/%d/color" % index_1indexed, color)
 
         source = SpatialSource(index, position, self.visualiser)
+        speaker_positions = [speaker.position for speaker in self.speakers]
+        source.start_audio(speaker_positions)
         source.update_visualisation()
-
 
         # source.random_panner = (WhiteNoise([5] * self.num_speakers, interpolate=False) ** 5) * 5.0 * self.input_channels[index]
         # source.random_panner.play()
@@ -269,10 +269,12 @@ class Spatialiser:
         panner.play()
 
     def tick(self):
-        input_buffer = self.input_channels.output_buffer[0]
-        input_buffer_rms = np.sqrt(np.mean(np.square(input_buffer)))
-        if input_buffer_rms == 0:
-            logger.info("Input RMS: 0")
-        else:
-            input_buffer_rms_db = 20.0 * np.log10(input_buffer_rms)
-            logger.info("Input RMS: %.2fdB" % input_buffer_rms_db)
+        pass
+        # TODO
+        # input_buffer = self.input_channels.output_buffer[0]
+        # input_buffer_rms = np.sqrt(np.mean(np.square(input_buffer)))
+        # if input_buffer_rms == 0:
+        #     logger.info("Input RMS: 0")
+        # else:
+        #     input_buffer_rms_db = 20.0 * np.log10(input_buffer_rms)
+        #     logger.info("Input RMS: %.2fdB" % input_buffer_rms_db)

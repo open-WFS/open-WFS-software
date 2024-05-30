@@ -7,7 +7,8 @@ from .constants import input_device_name, output_device_name, num_speakers, inpu
 from .constants import module_layout, num_sources, num_speakers_per_module, disable_lfe
 from .constants import environment_radius_x, environment_radius_y, environment_radius_z, source_colours, disable_midi
 from .constants import crossover_frequency
-from .dust import start_dust_process
+from multiprocessing import Process, Pipe
+
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +36,11 @@ class SpatialSource:
         self.ysin_freq = 0
         self.yphase = 0.0
 
+    def start_audio(self, speaker_positions: list[list]):
+        self.parent_conn, self.child_conn = Pipe()
+        self.audio_process = Process(target=self.run_panner_process, args=(self.index, self.position, speaker_positions, self.child_conn))
+        self.audio_process.start()
+
     def run_panner_process(self,
                            source_index: int,
                            position: list,
@@ -45,9 +51,9 @@ class SpatialSource:
         config.output_device_name = output_device_name
         config.input_buffer_size = input_buffer_size
         config.output_buffer_size = output_buffer_size
-        graph = AudioGraph(config=config, start=False)
+        graph = AudioGraph(config=config)
 
-        raw_input_channels = AudioIn(8) * 0.05
+        raw_input_channels = AudioIn(8) * 0.25
 
         # TODO: Why does BiquadFilter not work here?
         input_channels = SVFilter(input=raw_input_channels,
@@ -84,10 +90,14 @@ class SpatialSource:
                                use_delays=True)
 
         # TODO: Really want a soft limiter
-        limiter = Clip(panner, min=-0.05, max=0.05)
+        limiter = Clip(panner, min=-0.25, max=0.25)
         limiter.play()
 
-        
+        while True:
+            position = child_conn.recv()
+            x.input = position[0]
+            y.input = position[1]
+            z.input = position[2]
 
     def tick(self, delta_seconds: float):
         self.xphase += self.xsin_freq * delta_seconds
@@ -117,6 +127,4 @@ class SpatialSource:
     def update_panner(self):
         position = self.position
         logger.debug("[Source %02d] Updating panner: %s" % (self.index_1indexed, position))
-        self.x.input = position[0]
-        self.y.input = position[1]
-        self.z.input = position[2]
+        self.parent_conn.send(position)

@@ -12,10 +12,12 @@ output_device_name = "Digiface AVB (24119914)"
 input_buffer_size = 256
 output_buffer_size = 256
 
-num_speakers = 32
+num_speakers = 96
 num_speakers_per_module = 32
 num_sources = 8
 disable_lfe = False
+disable_midi = False
+crossover_frequency = 200
 
 environment_radius_x = 0.5
 environment_radius_y = 0.5
@@ -27,10 +29,10 @@ class Module:
     rotation: float
 
 module_layout = [
+    Module([1.0, -0.5, 0.0], -1.0 * np.pi / 2),
+    Module([-1.0, -0.5, 0.0], 1.0 * np.pi / 2),
     Module([0.0, 0.5, 0.0], 0),
-#    Module([1.0, -0.5, 0.0], -1.0 * np.pi / 2),
-#    Module([-1.0, -0.5, 0.0], 1.0 * np.pi / 2),
-#    Module([0.0, -0.5, 0.5], 0),
+    Module([0.0, -0.5, 0.5], 0),
 ]
 
 source_colours = [

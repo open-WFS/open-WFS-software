@@ -11,7 +11,9 @@ from pythonosc.dispatcher import Dispatcher
 from pythonosc.udp_client import SimpleUDPClient
 from .constants import input_device_name, output_device_name, num_speakers, input_buffer_size, output_buffer_size
 from .constants import module_layout, num_sources, num_speakers_per_module, disable_lfe
-from .constants import environment_radius_x, environment_radius_y, environment_radius_z, source_colours
+from .constants import environment_radius_x, environment_radius_y, environment_radius_z, source_colours, disable_midi
+from .constants import crossover_frequency
+from .dust import start_dust_process
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +26,7 @@ class SpatialSource:
         self.index = index
         self.index_1indexed = self.index + 1
         self.panner = None
+        self.random_panner = None
         self.index = index
         self._position = position
         self.visualiser = visualiser
@@ -94,7 +97,7 @@ class Spatialiser:
         self.input_channels = SVFilter(input=self.raw_input_channels,
                                        filter_type="high_pass",
                                        resonance=0.0,
-                                       cutoff=400)
+                                       cutoff=crossover_frequency)
         if show_cpu:
             self.graph.poll(1)
         self.is_running = False
@@ -107,8 +110,9 @@ class Spatialiser:
                                                            dispatcher)
 
         # Start listening for MIDI events
-        inport = mido.open_input(name="IAC Driver Bus 1")
-        inport.callback = self.handle_midi_message
+        if not disable_midi:
+            inport = mido.open_input(name="IAC Driver Bus 1")
+            inport.callback = self.handle_midi_message
 
         # --------------------------------------------------------------------------------
         # Visualiser: General setup
@@ -173,6 +177,8 @@ class Spatialiser:
                                             pan=62)
             self.lfe_panner.play()
 
+        # start_dust_process()
+
     def run_animation_thread(self):
         while self.is_running:
             delta = 0.02
@@ -207,9 +213,8 @@ class Spatialiser:
         speaker = SpatialSpeaker()
         self.speakers.append(speaker)
 
-    def add_source(self, position: list, color: list):
+    def add_source(self, index: int, position: list, color: list):
         logger.info("Add source: %s" % position)
-        index = len(self.sources)
         index_1indexed = index + 1
 
         self.visualiser.send_message("/source/number", [index_1indexed])
@@ -232,11 +237,22 @@ class Spatialiser:
         # TODO: Really want a soft limiter
         source.limiter = Clip(source.panner, min=-0.05, max=0.05)
         source.limiter.play()
+
+        # source.random_panner = (WhiteNoise([5] * self.num_speakers, interpolate=False) ** 5) * 5.0 * self.input_channels[index]
+        # source.random_panner.play()
+
+        # num_dust_channels = 50
+        # dust = (RandomImpulse([3] * num_dust_channels) * (WhiteNoise() ** 4) * 0.1)
+        # dust_cutoff = [random.uniform(8000, 14000) for n in range(num_dust_channels)]
+        # dust_resonance = [random.uniform(0.4, 0.8) for n in range(num_dust_channels)]
+        # dust = SVFilter(dust, "high_pass", dust_cutoff, resonance=dust_resonance)
+        # dust.play()
+
         self.sources.append(source)
 
     def add_sources(self):
         for source_index in range(num_sources):
-            self.add_source([-0.75 + 0.25 * source_index, -0.5, 0.0], source_colours[source_index])
+            self.add_source(source_index, [-0.75 + 0.25 * source_index, -0.5, 0.0], source_colours[source_index])
 
     def stop(self):
         if not self.is_running:

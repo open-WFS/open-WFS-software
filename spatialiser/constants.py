@@ -19,7 +19,7 @@ disable_lfe = False
 disable_midi = False
 crossover_frequency = 400
 
-environment_radius_x = 0.5
+environment_radius_x = 1.0
 environment_radius_y = 0.5
 environment_radius_z = 0.5
 

@@ -17,7 +17,7 @@ num_speakers_per_module = 32
 num_sources = 8
 disable_lfe = False
 disable_midi = False
-crossover_frequency = 200
+crossover_frequency = 400
 
 environment_radius_x = 0.5
 environment_radius_y = 0.5

@@ -35,6 +35,60 @@ class SpatialSource:
         self.ysin_freq = 0
         self.yphase = 0.0
 
+    def run_panner_process(self,
+                           source_index: int,
+                           position: list,
+                           speaker_positions: list[list[float]],
+                           child_conn):
+        config = AudioGraphConfig()
+        config.input_device_name = input_device_name
+        config.output_device_name = output_device_name
+        config.input_buffer_size = input_buffer_size
+        config.output_buffer_size = output_buffer_size
+        graph = AudioGraph(config=config, start=False)
+
+        raw_input_channels = AudioIn(8) * 0.05
+
+        # TODO: Why does BiquadFilter not work here?
+        input_channels = SVFilter(input=raw_input_channels,
+                                  filter_type="high_pass",
+                                  resonance=0.0,
+                                  cutoff=crossover_frequency)
+        # pan LFE to last channel
+        if not disable_lfe:
+            mono_mixdown = ChannelMixer(num_channels=1,
+                                        input=raw_input_channels)
+            lfe_channel = SVFilter(input=mono_mixdown,
+                                   filter_type="low_pass",
+                                   resonance=0.0,
+                                   cutoff=400) * 20
+            lfe_panner = ChannelPanner(num_channels=64,
+                                       input=lfe_channel,
+                                       pan=62)
+            lfe_panner.play()
+
+        env = SpatialEnvironment()
+        for speaker_index, position in enumerate(speaker_positions):
+            env.add_speaker(speaker_index, *position)
+
+        x = Smooth(position[0], 0.999)
+        y = Smooth(position[1], 0.999)
+        z = Smooth(position[2], 0.999)
+        panner = SpatialPanner(env=env,
+                               input=input_channels[source_index],
+                               x=x,
+                               y=y,
+                               z=z,
+                               algorithm="beamformer",
+                               radius=0.5,
+                               use_delays=True)
+
+        # TODO: Really want a soft limiter
+        limiter = Clip(panner, min=-0.05, max=0.05)
+        limiter.play()
+
+        
+
     def tick(self, delta_seconds: float):
         self.xphase += self.xsin_freq * delta_seconds
         while self.xphase > np.pi * 2:
@@ -66,4 +120,3 @@ class SpatialSource:
         self.x.input = position[0]
         self.y.input = position[1]
         self.z.input = position[2]
-

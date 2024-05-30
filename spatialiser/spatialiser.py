@@ -30,20 +30,7 @@ class Spatialiser:
                        source-viewer node application.
             show _cpu: If True, show CPU usage in the console.
         """
-        config = AudioGraphConfig()
-        config.input_device_name = input_device_name
-        config.output_device_name = output_device_name
-        config.input_buffer_size = input_buffer_size
-        config.output_buffer_size = output_buffer_size
-        self.graph = AudioGraph(config=config, start=False)
-        self.raw_input_channels = AudioIn(8) * 0.05
-        # TODO: Why does BiquadFilter not work here?
-        self.input_channels = SVFilter(input=self.raw_input_channels,
-                                       filter_type="high_pass",
-                                       resonance=0.0,
-                                       cutoff=crossover_frequency)
-        if show_cpu:
-            self.graph.poll(1)
+
         self.is_running = False
 
         # create an OSC server
@@ -76,7 +63,6 @@ class Spatialiser:
         # --------------------------------------------------------------------------------
         self.speakers = []
         self.num_speakers = num_speakers
-        self.env = SpatialEnvironment()
 
         self.visualiser.send_message("/speaker/number", [num_speakers])
         time.sleep(0.2)
@@ -107,19 +93,6 @@ class Spatialiser:
         # this has to be called after sources have been created
         time.sleep(0.1)
         self.visualiser.send_message("/source/numDisplay", [1])
-
-        # pan LFE to last channel
-        if not disable_lfe:
-            self.mono_mixdown = ChannelMixer(1, input=self.raw_input_channels)
-            self.lfe_channel = SVFilter(input=self.mono_mixdown,
-                                        filter_type="low_pass",
-                                        resonance=0.0,
-                                        cutoff=400) * 20
-
-            self.lfe_panner = ChannelPanner(num_channels=64,
-                                            input=self.lfe_channel,
-                                            pan=62)
-            self.lfe_panner.play()
 
         # start_dust_process()
 
@@ -152,7 +125,7 @@ class Spatialiser:
     def add_speaker(self, position: list):
         index = len(self.speakers)
         logger.info("Add speaker %d: %s" % (index, position))
-        self.env.add_speaker(index, *position)
+        # self.env.add_speaker(index, *position)
         self.visualiser.send_message("/speaker/%d/xyz" % (index + 1), position)
         speaker = SpatialSpeaker()
         self.speakers.append(speaker)
@@ -167,20 +140,7 @@ class Spatialiser:
 
         source = SpatialSource(index, position, self.visualiser)
         source.update_visualisation()
-        source.x = Smooth(position[0], 0.999)
-        source.y = Smooth(position[1], 0.999)
-        source.z = Smooth(position[2], 0.999)
-        source.panner = SpatialPanner(env=self.env,
-                                      input=self.input_channels[index],
-                                      x=source.x,
-                                      y=source.y,
-                                      z=source.z,
-                                      algorithm="beamformer",
-                                      radius=0.5,
-                                      use_delays=True)
-        # TODO: Really want a soft limiter
-        source.limiter = Clip(source.panner, min=-0.05, max=0.05)
-        source.limiter.play()
+
 
         # source.random_panner = (WhiteNoise([5] * self.num_speakers, interpolate=False) ** 5) * 5.0 * self.input_channels[index]
         # source.random_panner.play()

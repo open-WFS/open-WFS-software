@@ -3,10 +3,9 @@ import logging
 import numpy as np
 from signalflow import *
 from pythonosc.udp_client import SimpleUDPClient
-from .constants import input_device_name, output_device_name, num_speakers, input_buffer_size, output_buffer_size
-from .constants import module_layout, num_sources, num_speakers_per_module, disable_lfe
-from .constants import environment_radius_x, environment_radius_y, environment_radius_z, source_colours, disable_midi
-from .constants import crossover_frequency
+from .constants import input_device_name, output_device_name, input_buffer_size, output_buffer_size
+from .constants import disable_lfe
+from .constants import crossover_frequency_hpf, crossover_frequency_lpf, disable_audio
 from multiprocessing import Process, Pipe
 
 
@@ -25,16 +24,18 @@ class SpatialSource:
         self.index = index
         self._position = position
         self.visualiser = visualiser
-        self.xsin_amp = random.uniform(0.1, 0.25)
-        self.xsin_freq = random.uniform(0.25, 1.0)
         self.xsin_amp = 0
         self.xsin_freq = 0
         self.xphase = 0.0
-        self.ysin_amp = random.uniform(0.1, 0.25)
-        self.ysin_freq = random.uniform(0.25, 1.0)
         self.ysin_amp = 0
         self.ysin_freq = 0
         self.yphase = 0.0
+        randomise_lfos = False
+        if randomise_lfos:
+            self.xsin_amp = random.uniform(0.1, 0.25)
+            self.xsin_freq = random.uniform(0.25, 1.0)
+            self.ysin_amp = random.uniform(0.1, 0.25)
+            self.ysin_freq = random.uniform(0.25, 1.0)
 
     def start_audio(self, speaker_positions: list[list]):
         self.parent_conn, self.child_conn = Pipe()
@@ -46,58 +47,68 @@ class SpatialSource:
                            position: list,
                            speaker_positions: list[list[float]],
                            child_conn):
-        config = AudioGraphConfig()
-        config.input_device_name = input_device_name
-        config.output_device_name = output_device_name
-        config.input_buffer_size = input_buffer_size
-        config.output_buffer_size = output_buffer_size
-        graph = AudioGraph(config=config)
+        import time
+        print("run_panner_process")
 
-        raw_input_channels = AudioIn(8) * 0.25
+        try:
+            config = AudioGraphConfig()
+            config.input_device_name = input_device_name
+            config.output_device_name = output_device_name
+            config.input_buffer_size = input_buffer_size
+            config.output_buffer_size = output_buffer_size
+            self.graph = AudioGraph(config=config, start=True)
+            # sine = SineOscillator(440) * 0.01
+            # sine.play()
 
-        # TODO: Why does BiquadFilter not work here?
-        input_channels = SVFilter(input=raw_input_channels,
-                                  filter_type="high_pass",
-                                  resonance=0.0,
-                                  cutoff=crossover_frequency)
-        # pan LFE to last channel
-        if not disable_lfe:
-            mono_mixdown = ChannelMixer(num_channels=1,
-                                        input=raw_input_channels)
-            lfe_channel = SVFilter(input=mono_mixdown,
-                                   filter_type="low_pass",
-                                   resonance=0.0,
-                                   cutoff=400) * 20
-            lfe_panner = ChannelPanner(num_channels=64,
-                                       input=lfe_channel,
-                                       pan=62)
-            lfe_panner.play()
+            raw_input_channels = AudioIn(8) * 0.25
 
-        env = SpatialEnvironment()
-        for speaker_index, position in enumerate(speaker_positions):
-            env.add_speaker(speaker_index, *position)
+            # TODO: Why does BiquadFilter not work here?
+            input_channels = SVFilter(input=raw_input_channels,
+                                      filter_type="high_pass",
+                                      resonance=0.0,
+                                      cutoff=crossover_frequency_hpf)
+            # pan LFE to last channel
+            if not disable_lfe:
+                mono_mixdown = ChannelMixer(num_channels=1,
+                                            input=raw_input_channels)
+                lfe_channel = SVFilter(input=mono_mixdown,
+                                       filter_type="low_pass",
+                                       resonance=0.0,
+                                       cutoff=crossover_frequency_lpf) * 20
+                lfe_panner = ChannelPanner(num_channels=128,
+                                           input=lfe_channel,
+                                           pan=126)
+                lfe_panner.play()
 
-        x = Smooth(position[0], 0.999)
-        y = Smooth(position[1], 0.999)
-        z = Smooth(position[2], 0.999)
-        panner = SpatialPanner(env=env,
-                               input=input_channels[source_index],
-                               x=x,
-                               y=y,
-                               z=z,
-                               algorithm="beamformer",
-                               radius=0.5,
-                               use_delays=True)
+            env = SpatialEnvironment()
+            for speaker_index, position in enumerate(speaker_positions):
+                env.add_speaker(speaker_index, *position)
 
-        # TODO: Really want a soft limiter
-        limiter = Clip(panner, min=-0.25, max=0.25)
-        limiter.play()
+            x = Smooth(position[0], 0.999)
+            y = Smooth(position[1], 0.999)
+            z = Smooth(position[2], 0.999)
+            panner = SpatialPanner(env=env,
+                                   input=input_channels[source_index],
+                                   x=x,
+                                   y=y,
+                                   z=z,
+                                   algorithm="beamformer",
+                                   radius=0.5,
+                                   use_delays=True)
 
-        while True:
-            position = child_conn.recv()
-            x.input = position[0]
-            y.input = position[1]
-            z.input = position[2]
+            # TODO: Really want a soft limiter
+            limiter = Clip(panner, min=-0.25, max=0.25)
+            limiter.play()
+
+            while True:
+                position = child_conn.recv()
+                # print("New position: %s" % position)
+                x.input = position[0]
+                y.input = position[1]
+                z.input = position[2]
+        except Exception as e:
+            print("Exception in source process: %s" % e)
+        print("Exiting source process")
 
     def tick(self, delta_seconds: float):
         self.xphase += self.xsin_freq * delta_seconds
@@ -125,6 +136,7 @@ class SpatialSource:
         self.visualiser.send_message("/source/%d/xyz" % self.index_1indexed, self.position)
 
     def update_panner(self):
-        position = self.position
-        logger.debug("[Source %02d] Updating panner: %s" % (self.index_1indexed, position))
-        self.parent_conn.send(position)
+        if not disable_audio:
+            position = self.position
+            logger.debug("[Source %02d] Updating panner: %s" % (self.index_1indexed, position))
+            self.parent_conn.send(position)

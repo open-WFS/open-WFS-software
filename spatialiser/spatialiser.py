@@ -1,6 +1,5 @@
 import time
 import mido
-import random
 import logging
 import threading
 import numpy as np
@@ -9,10 +8,10 @@ from signalflow import *
 from pythonosc import osc_server
 from pythonosc.dispatcher import Dispatcher
 from pythonosc.udp_client import SimpleUDPClient
-from .constants import input_device_name, output_device_name, num_speakers, input_buffer_size, output_buffer_size
-from .constants import module_layout, num_sources, num_speakers_per_module, disable_lfe
+from .constants import num_speakers
+from .constants import module_layout, num_sources, num_speakers_per_module
 from .constants import environment_radius_x, environment_radius_y, environment_radius_z, source_colours, disable_midi
-from .constants import crossover_frequency
+from .constants import disable_audio
 from .source import SpatialSource
 from dataclasses import dataclass
 logger = logging.getLogger(__name__)
@@ -70,6 +69,8 @@ class Spatialiser:
         time.sleep(0.1)
 
         speaker_layout = pd.read_csv("../../Data/allspeaker_pos_v2.csv")
+        # flip the Z axis (design is upside down, with tight-spaced speakers on top)
+        speaker_layout.y = -speaker_layout.y
         mean_speaker_x = (speaker_layout.x.max() + speaker_layout.x.min()) / 2
         mean_speaker_y = (speaker_layout.y.max() + speaker_layout.y.min()) / 2
         speaker_layout.x = speaker_layout.x - mean_speaker_x
@@ -139,8 +140,9 @@ class Spatialiser:
 
         source = SpatialSource(index, position, self.visualiser)
         speaker_positions = [speaker.position for speaker in self.speakers]
-        source.start_audio(speaker_positions)
-        source.update_visualisation()
+        if not disable_audio:
+            source.start_audio(speaker_positions)
+        # source.update_visualisation()
 
         # source.random_panner = (WhiteNoise([5] * self.num_speakers, interpolate=False) ** 5) * 5.0 * self.input_channels[index]
         # source.random_panner.play()
@@ -156,13 +158,12 @@ class Spatialiser:
 
     def add_sources(self):
         for source_index in range(num_sources):
-            self.add_source(source_index, [-0.75 + 0.25 * source_index, -0.5, 0.0], source_colours[source_index])
+            self.add_source(source_index, [-0.75 + 0.25 * source_index, 0.0, 0.0], source_colours[source_index])
 
     def stop(self):
         if not self.is_running:
             return
         self.osc_server.shutdown()
-        self.graph.stop()
         self.is_running = False
 
     def scale_normalised_x_to_position(self, value: float):

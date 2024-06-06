@@ -60,7 +60,7 @@ class SpatialSource:
             # sine = SineOscillator(440) * 0.01
             # sine.play()
 
-            raw_input_channels = AudioIn(8) * 0.25
+            raw_input_channels = AudioIn(8) * 0.15
 
             # TODO: Why does BiquadFilter not work here?
             input_channels = SVFilter(input=raw_input_channels,
@@ -74,7 +74,7 @@ class SpatialSource:
                 lfe_channel = SVFilter(input=mono_mixdown,
                                        filter_type="low_pass",
                                        resonance=0.0,
-                                       cutoff=crossover_frequency_lpf) * 20
+                                       cutoff=crossover_frequency_lpf) * 40
                 lfe_panner = ChannelPanner(num_channels=128,
                                            input=lfe_channel,
                                            pan=126)

@@ -7,8 +7,10 @@ input_device_name = "BlackHole 64ch"
 # output_device_name = "XMOS xCORE-200 MC (UAC2.0)"
 # output_device_name = "XMOS x2"
 # output_device_name = "BlackHole 64ch"
-output_device_name = "Digiface AVB (24119914)"
+# output_device_name = "Digiface AVB (24119914)"
 # output_device_name = "openWFS Module v1:Audio Unit 0"
+output_device_name = "Aggregate Device"
+
 input_buffer_size = 256
 output_buffer_size = 256
 
@@ -18,8 +20,8 @@ num_sources = 8
 disable_lfe = False
 disable_midi = False
 disable_audio = False
-crossover_frequency_lpf = 400
-crossover_frequency_hpf = 400
+crossover_frequency_lpf = 180
+crossover_frequency_hpf = 300
 
 environment_radius_x = 1.0
 environment_radius_y = 1.0
@@ -33,14 +35,14 @@ class Module:
 # Y: +ve is front
 # Y backwards: 45mm + 110mm + 1066mm
 module_layout = [
+    Module([-0.99, -0.533, 0.0], 1.0 * np.pi / 2),  # left rear - DONE
+    Module([-0.99, 0.533, 0.0], 1.0 * np.pi / 2),  # left front - DONE
+    Module([-0.533, 1.221, 0.0], 0),  # centre left - DONE
+    Module([0.533, 1.221, 0.0], 0),  # centre right - DONE
     Module([0.99, 0.533, 0.0], -1.0 * np.pi / 2),      # right front - DONE
     Module([0.99, -0.533, 0.0], -1.0 * np.pi / 2),  # right rear - DONE
-    Module([0.533, 0.0, 0.6], 0),  # top right - DONE
     Module([-0.533, 0.0, 0.6], 0),  # top left - DONE
-    Module([-0.533, 1.221, 0.0], 0),  # centre left - DONE
-    Module([-0.99, 0.533, 0.0], 1.0 * np.pi / 2),  # left front - DONE
-    Module([-0.99, -0.533, 0.0], 1.0 * np.pi / 2),  # left rear - DONE
-    Module([0.533, 1.221, 0.0], 0),                    # centre right - DONE
+    Module([0.533, 0.0, 0.6], 0),  # top right - DONE
 ]
 
 source_colours = [

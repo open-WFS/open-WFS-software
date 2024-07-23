@@ -4,13 +4,21 @@ import numpy as np
 from signalflow import *
 from pythonosc.udp_client import SimpleUDPClient
 from .constants import input_device_name, output_device_name, input_buffer_size, output_buffer_size
-from .constants import disable_lfe
-from .constants import crossover_frequency_hpf, crossover_frequency_lpf, disable_audio
+from .constants import crossover_frequency_hpf, crossover_frequency_lpf, lfe_channel_index, num_speakers
+from .constants import disable_audio, disable_lfe, randomise_lfos
 from multiprocessing import Process, Pipe
 
 
 logger = logging.getLogger(__name__)
 
+
+def create_audio_graph() -> AudioGraph:
+    config = AudioGraphConfig()
+    config.input_device_name = input_device_name
+    config.output_device_name = output_device_name
+    config.input_buffer_size = input_buffer_size
+    config.output_buffer_size = output_buffer_size
+    return AudioGraph(config=config, start=True)
 
 class SpatialSource:
     def __init__(self,
@@ -24,13 +32,14 @@ class SpatialSource:
         self.index = index
         self._position = position
         self.visualiser = visualiser
+
+        # LFO
         self.xsin_amp = 0
         self.xsin_freq = 0
         self.xphase = 0.0
         self.ysin_amp = 0
         self.ysin_freq = 0
         self.yphase = 0.0
-        randomise_lfos = False
         if randomise_lfos:
             self.xsin_amp = random.uniform(0.1, 0.25)
             self.xsin_freq = random.uniform(0.25, 1.0)
@@ -38,27 +47,22 @@ class SpatialSource:
             self.ysin_freq = random.uniform(0.25, 1.0)
 
     def start_audio(self, speaker_positions: list[list]):
+        logger.info("Starting audio process %d..." % self.index)
         self.parent_conn, self.child_conn = Pipe()
         self.audio_process = Process(target=self.run_panner_process, args=(self.index, self.position, speaker_positions, self.child_conn))
         self.audio_process.start()
+
+    def stop(self):
+        self.audio_process.terminate()
 
     def run_panner_process(self,
                            source_index: int,
                            position: list,
                            speaker_positions: list[list[float]],
                            child_conn):
-        import time
-        print("run_panner_process")
 
         try:
-            config = AudioGraphConfig()
-            config.input_device_name = input_device_name
-            config.output_device_name = output_device_name
-            config.input_buffer_size = input_buffer_size
-            config.output_buffer_size = output_buffer_size
-            self.graph = AudioGraph(config=config, start=True)
-            # sine = SineOscillator(440) * 0.01
-            # sine.play()
+            self.graph = create_audio_graph()
 
             raw_input_channels = AudioIn(8) * 0.15
 
@@ -67,7 +71,8 @@ class SpatialSource:
                                       filter_type="high_pass",
                                       resonance=0.0,
                                       cutoff=crossover_frequency_hpf)
-            # pan LFE to last channel
+            
+            # Create LFE channel
             if not disable_lfe:
                 mono_mixdown = ChannelMixer(num_channels=1,
                                             input=raw_input_channels)
@@ -75,9 +80,9 @@ class SpatialSource:
                                        filter_type="low_pass",
                                        resonance=0.0,
                                        cutoff=crossover_frequency_lpf) * 40
-                lfe_panner = ChannelPanner(num_channels=128,
+                lfe_panner = ChannelPanner(num_channels=num_speakers,
                                            input=lfe_channel,
-                                           pan=126)
+                                           pan=lfe_channel_index)
                 lfe_panner.play()
 
             env = SpatialEnvironment()
@@ -97,12 +102,11 @@ class SpatialSource:
                                    use_delays=True)
 
             # TODO: Really want a soft limiter
-            limiter = Clip(panner, min=-0.25, max=0.25)
+            limiter = Clip(panner, min=-0.025, max=0.025)
             limiter.play()
 
             while True:
                 position = child_conn.recv()
-                # print("New position: %s" % position)
                 x.input = position[0]
                 y.input = position[1]
                 z.input = position[2]

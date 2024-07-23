@@ -2,21 +2,26 @@
 
 from spatialiser import Spatialiser
 import coloredlogs
-import numpy as np
 import argparse
 import time
 
+import logging
+logger = logging.getLogger(__file__)
+
 def main(args):
-    print("Creating spatialiser...")
+    logger.info("Creating spatialiser...")
     spatialiser = Spatialiser(show_cpu=args.show_cpu)
-    spatialiser.start()
 
     try:
         if args.sound_check:
             spatialiser.run_sound_check()
-        while True:
-            spatialiser.tick()
-            time.sleep(2)
+        elif args.dump_spat_layout:
+            spatialiser.dump_spat_layout()
+        else:
+            spatialiser.start()
+            while True:
+                spatialiser.tick()
+                time.sleep(2)
     except KeyboardInterrupt:
         print("Terminating...")
         spatialiser.stop()
@@ -26,11 +31,12 @@ if __name__ == "__main__":
     parser.add_argument("--sound-check", action="store_true", help="Run a sound check")
     parser.add_argument("--show-cpu", action="store_true", help="Show CPU usage")
     parser.add_argument("--verbose", action="store_true", help="Verbose output")
+    parser.add_argument("--dump-spat-layout", action="store_true", help="Print speaker layout suitable for Max/MSP Spat config")
     args = parser.parse_args()
 
     if args.verbose:
-        coloredlogs.install(level="DEBUG", format="%(asctime)s %(levelname)s %(message)s")
+        coloredlogs.install(level="DEBUG", fmt="%(asctime)s [%(levelname)s] %(message)s")
     else:
-        coloredlogs.install(level="INFO", format="%(asctime)s %(levelname)s %(message)s")
+        coloredlogs.install(level="INFO", fmt="%(asctime)s [%(levelname)s] %(message)s")
 
     main(args)

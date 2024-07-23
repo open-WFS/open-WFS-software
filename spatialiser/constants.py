@@ -1,49 +1,68 @@
-import numpy as np
-from dataclasses import dataclass
+from .module import Module
 
+#--------------------------------------------------------------------------------
+# The names of the audio input and output devices to use.
+# TODO: input_device_name is currently not honoured due as it is not supported
+# in SignalFlow. The system's default audio input device is used instead.
+#--------------------------------------------------------------------------------
 input_device_name = "BlackHole 64ch"
-# input_device_name = "Loopback 2ch"
-# output_device_name = "Model 12"
-# output_device_name = "XMOS xCORE-200 MC (UAC2.0)"
-# output_device_name = "XMOS x2"
-# output_device_name = "BlackHole 64ch"
-# output_device_name = "Digiface AVB (24119914)"
-# output_device_name = "openWFS Module v1:Audio Unit 0"
-output_device_name = "Aggregate Device"
+output_device_name = "Digiface AVB (24119914)"
+midi_input_device_name = "IAC Driver Bus 1"
 
+#--------------------------------------------------------------------------------
+# Port used to listen for OSC messages to set source positions.
+#--------------------------------------------------------------------------------
+osc_port = 9130
+
+#--------------------------------------------------------------------------------
+# The input and output audio buffer size, in samples.
+#--------------------------------------------------------------------------------
 input_buffer_size = 256
 output_buffer_size = 256
 
-num_speakers = 128
-num_speakers_per_module = 16
-num_sources = 8
-disable_lfe = False
-disable_midi = False
-disable_audio = False
+#--------------------------------------------------------------------------------
+# The number of drivers to use per module.
+# The driver layout is read from `spatialiser/data/openwfs_driver_layout_v2.csv`
+#--------------------------------------------------------------------------------
+num_speakers_per_module = 32
+
+#--------------------------------------------------------------------------------
+# The number of sound sources to pan.
+#--------------------------------------------------------------------------------
+num_sources = 2
+
+#--------------------------------------------------------------------------------
+# The centre coordinates of each OpenWFS module, in metres.
+# For the Y-axis, positive values are in front of the listener.
+#--------------------------------------------------------------------------------
+module_layout = [
+    Module([-0.533, 1.0, 0.0], 0),
+    Module([0.533, 1.0, 0.0], 0),
+]
+
+num_speakers = num_speakers_per_module * len(module_layout)
+
+#--------------------------------------------------------------------------------
+# If the LFE channel is enabled, a low-passed mono mixdown of the output 
+# content is sent to this channel index.
+#--------------------------------------------------------------------------------
+lfe_channel_index = num_speakers - 1
 crossover_frequency_lpf = 180
 crossover_frequency_hpf = 300
+
+#--------------------------------------------------------------------------------
+# Activate/deactivate various features.
+#  - lfe: relay a bass channel mono mixdown to the specified channel
+#  - midi: receive real-time MIDI controls to 
+#--------------------------------------------------------------------------------
+disable_lfe = True
+disable_midi = True
+disable_audio = False
+randomise_lfos = False
 
 environment_radius_x = 1.0
 environment_radius_y = 1.0
 environment_radius_z = 0.5
-
-@dataclass
-class Module:
-    position: list[float]
-    rotation: float
-
-# Y: +ve is front
-# Y backwards: 45mm + 110mm + 1066mm
-module_layout = [
-    Module([-0.99, -0.533, 0.0], 1.0 * np.pi / 2),  # left rear - DONE
-    Module([-0.99, 0.533, 0.0], 1.0 * np.pi / 2),  # left front - DONE
-    Module([-0.533, 1.221, 0.0], 0),  # centre left - DONE
-    Module([0.533, 1.221, 0.0], 0),  # centre right - DONE
-    Module([0.99, 0.533, 0.0], -1.0 * np.pi / 2),      # right front - DONE
-    Module([0.99, -0.533, 0.0], -1.0 * np.pi / 2),  # right rear - DONE
-    Module([-0.533, 0.0, 0.6], 0),  # top left - DONE
-    Module([0.533, 0.0, 0.6], 0),  # top right - DONE
-]
 
 source_colours = [
     [1.0, 0.0, 0.0, 1.0],

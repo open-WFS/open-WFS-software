@@ -46,9 +46,11 @@ Each sound source's spatial position can be controlled by sending OSC messages t
 |-------------|------------|-------------|
 | `/source/<source_id>/xyz` | `x`, `y`, `z` | Set the [x, y, z] coordinate of the source, with positions in metres |
 
+An example Python script demonstrating oscillating motion is provided in `bin/example-spatialiser-osc-client.py`.
+
 ---
 
-# The Python spatial panner
+## The Python spatial panner
 
 An alternative panner for Python is currently in development. It is not recommended for use at present, as it lacks some of the WFS algorithms implemented in Spat.
 

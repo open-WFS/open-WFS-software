@@ -102,7 +102,7 @@ class SpatialSource:
                                    use_delays=True)
 
             # TODO: Really want a soft limiter
-            limiter = Clip(panner, min=-0.025, max=0.025)
+            limiter = Clip(panner, min=-0.25, max=0.25)
             limiter.play()
 
             while True:

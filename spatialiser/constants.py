@@ -36,8 +36,10 @@ num_sources = 2
 # For the Y-axis, positive values are in front of the listener.
 #--------------------------------------------------------------------------------
 module_layout = [
-    Module([-0.533, 1.0, 0.0], 0),
-    Module([0.533, 1.0, 0.0], 0),
+    # Module([-1.598, 4.0, 0.0], 0),
+    Module([-0.533, 4.0, 0.0], 0),
+    Module([0.533, 4.0, 0.0], 0),
+    # Module([1.598, 4.0, 0.0], 0),
 ]
 
 num_speakers = num_speakers_per_module * len(module_layout)
@@ -60,7 +62,7 @@ disable_midi = True
 disable_audio = False
 randomise_lfos = False
 
-environment_radius_x = 1.0
+environment_radius_x = 2.0
 environment_radius_y = 1.0
 environment_radius_z = 0.5
 

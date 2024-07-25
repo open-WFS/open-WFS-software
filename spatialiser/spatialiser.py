@@ -36,18 +36,6 @@ class Spatialiser:
 
         self.is_running = False
 
-        # create an OSC server
-        dispatcher = Dispatcher()
-        dispatcher.map("/source/*/xyz", self.handle_osc_set_source_position)
-        dispatcher.set_default_handler(self.handle_osc)
-        self.osc_server = osc_server.ThreadingOSCUDPServer(("127.0.0.1", osc_port),
-                                                           dispatcher)
-
-        # Start listening for MIDI events
-        if not disable_midi:
-            inport = mido.open_input(name=midi_input_device_name)
-            inport.callback = self.handle_midi_message
-
         # --------------------------------------------------------------------------------
         # Visualiser: General setup
         # --------------------------------------------------------------------------------
@@ -119,6 +107,18 @@ class Spatialiser:
         if self.is_running:
             return
         self.is_running = True
+
+        # create an OSC server
+        dispatcher = Dispatcher()
+        dispatcher.map("/source/*/xyz", self.handle_osc_set_source_position)
+        dispatcher.set_default_handler(self.handle_osc)
+        self.osc_server = osc_server.ThreadingOSCUDPServer(("127.0.0.1", osc_port),
+                                                           dispatcher)
+
+        # Start listening for MIDI events
+        if not disable_midi:
+            inport = mido.open_input(name=midi_input_device_name)
+            inport.callback = self.handle_midi_message
 
         self.input_channels = None
         if not disable_audio:
@@ -291,9 +291,9 @@ class Spatialiser:
         output = "/speakers/xyz "
         for speaker in self.speakers:
             output = output + "%.3f %.3f %.3f " % (speaker.position[0], speaker.position[1], speaker.position[2])
-        output = output.strip()
-        output = output + ", /speaker/*/direction/xy 0 -1"
-        print(output)
+        output = output.strip() + "\n"
+        output = output + "/speaker/*/direction/xy 0 -1"
+        return output 
 
     def tick(self):
         pass

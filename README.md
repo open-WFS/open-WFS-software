@@ -1,6 +1,58 @@
 # OpenWFS: Spatialiser
 
-This repository contains the spatial panner for OpenWFS. This process:
+This repository contains spatial panning utilities for OpenWFS, and a Python-based spatial panner.
+
+## Usage instructions for Spat (Max/MSP)
+
+Currently, this is the recommended approach for optimal WFS performance.
+
+### 1. Install the system requirements
+
+These instructions are for macOS, and assume you have already installed the [general OpenWFS requirements and AVB drivers](https://github.com/open-WFS/open-WFS-docs).
+
+ - Install [BlackHole 64ch](https://existential.audio/blackhole/): This is used to route audio from your playback system to the panner.
+ - Install Max 8 and the [Spat](https://forum.ircam.fr/projects/detail/spat/) spatialisation library.
+ - With Python 3.8 or above, run `pip3 install -r requirements.txt` to install the scripting requirements.
+
+### 2. Configure the spatial layout of your system
+
+Measure and record the Cartesian x/y/z coordinates of each module of the OpenWFS array. All coordinates should be measured relative to a [0, 0, 0] origin determined by you; in general, a good origin is the centre of the listening space.
+
+Enter the coordinates in the `module_layout` property of `spatialiser/constants.py`.
+
+### 3. Generate the coordinates for Spat
+
+Output the driver coordinates in a format that Spat can read, to a file called `speaker-layout.txt`. From the top level of this repo:
+
+```
+python3 bin/generate-spat-layout max/speaker-layout.txt
+```
+
+### 4. Open Spat
+
+- Open `max/OpenWFS Spat.maxpat`
+- Configure the input to be `BlackHole 64ch`, and the output to be your Digiface or AVB aggregate device
+- Start Max/MSP's audio
+
+### 5. Begin playing audio
+
+You should now be able to play spatialised audio through the system. Each audio channel of BlackHole corresponds to a different sound source, so audio played through Channel 1 will be routed to Source 1, and so forth.
+
+### 6. Animate sound sources via OSC
+
+Each sound source's spatial position can be controlled by sending OSC messages to the spatialiser. Note that, for consistency with Max/MSP Spat, sound sources are numbered from 1 upwards.
+
+| OSC address | Parameters | Description |
+|-------------|------------|-------------|
+| `/source/<source_id>/xyz` | `x`, `y`, `z` | Set the [x, y, z] coordinate of the source, with positions in metres |
+
+---
+
+# The Python spatial panner
+
+An alternative panner for Python is currently in development. It is not recommended for use at present, as it lacks some of the WFS algorithms implemented in Spat.
+
+The panner system:
 
  - contains spatial configuration for a given WFS speaker system, and other global properties
  - reads real-time audio input from a loopback audio device (typically [Blackhole](https://existential.audio/blackhole/) 64ch), with each mono channel corresponding to a single sound object (a "source")
@@ -19,11 +71,7 @@ Python 3.9+ is required.
 
 ### OSC
 
-Each sound source's spatial position can be controlled by sending MIDI messages to the spatialiser.
-
-| OSC address | Parameters | Description |
-|-------------|------------|-------------|
-| `/source/<source_id>/xyz` | `x`, `y`, `z` | Set the [x, y, z] coordinate of the source, with positions in metres |
+The panner can be controlled by OSC, following the protocol described above.
 
 ### MIDI
 

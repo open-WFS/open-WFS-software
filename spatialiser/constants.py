@@ -36,10 +36,10 @@ num_sources = 2
 # For the Y-axis, positive values are in front of the listener.
 #--------------------------------------------------------------------------------
 module_layout = [
-    # Module([-1.598, 4.0, 0.0], 0),
+    Module([-1.598, 4.0, 0.0], 0),
     Module([-0.533, 4.0, 0.0], 0),
     Module([0.533, 4.0, 0.0], 0),
-    # Module([1.598, 4.0, 0.0], 0),
+    Module([1.598, 4.0, 0.0], 0),
 ]
 
 num_speakers = num_speakers_per_module * len(module_layout)
@@ -55,17 +55,25 @@ crossover_frequency_hpf = 300
 #--------------------------------------------------------------------------------
 # Activate/deactivate various features.
 #  - lfe: relay a bass channel mono mixdown to the specified channel
-#  - midi: receive real-time MIDI controls to 
+#  - midi: receive real-time MIDI controls to set the source locations
+#  - audio: enable/disable audio 
+#  - randomise_lfos: add random positional oscillations to each source
 #--------------------------------------------------------------------------------
 disable_lfe = True
 disable_midi = True
 disable_audio = False
 randomise_lfos = False
 
+#--------------------------------------------------------------------------------
+# Environment size, in metres
+#--------------------------------------------------------------------------------
 environment_radius_x = 2.0
 environment_radius_y = 1.0
 environment_radius_z = 0.5
 
+#--------------------------------------------------------------------------------
+# Source colours for 3D visualiser
+#--------------------------------------------------------------------------------
 source_colours = [
     [1.0, 0.0, 0.0, 1.0],
     [1.0, 0.5, 0.0, 1.0],

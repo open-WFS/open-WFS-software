@@ -10,9 +10,9 @@ Currently, this is the recommended approach for optimal WFS performance.
 
 These instructions are for macOS, and assume you have already installed the [general OpenWFS requirements and AVB drivers](https://github.com/open-WFS/open-WFS-docs).
 
- - Install [BlackHole 64ch](https://existential.audio/blackhole/): This is used to route audio from your playback system to the panner.
+ - Install [BlackHole 64ch](https://existential.audio/blackhole/): This is used to route audio from your playback system to the panner. You can also use [Loopback](https://rogueamoeba.com/loopback/).
  - Install Max 8 and the [Spat](https://forum.ircam.fr/projects/detail/spat/) spatialisation library.
- - With Python 3.8 or above, run `pip3 install -r requirements.txt` to install the scripting requirements.
+ - With Python 3.8 or above, run `pip3 install -r requirements.txt` from within this repo to install the Python scripting requirements.
 
 ### 2. Configure the spatial layout of your system
 
@@ -20,7 +20,21 @@ Measure and record the Cartesian x/y/z coordinates of each module of the OpenWFS
 
 Enter the coordinates in the `module_layout` property of `spatialiser/constants.py`.
 
-### 3. Generate the coordinates for Spat
+### 3. Run a sound check to confirm that the stream configuration is successful
+
+This can be done with the [OpenWFS Spatialiser](https://github.com/open-WFS/open-WFS-spatialiser/) or a utility like Reaper.
+
+#### Using the OpenWFS Spatialiser
+
+ From within this repo, run:
+ 
+ ```
+ bin/run-spatialiser.py --sound-check
+ ```
+
+ You should a burst of pink noise played through each driver in turn.
+
+### 4. Generate the coordinates for Spat
 
 Output the driver coordinates in a format that Spat can read, to a file called `speaker-layout.txt`. From the top level of this repo:
 
@@ -28,17 +42,17 @@ Output the driver coordinates in a format that Spat can read, to a file called `
 python3 bin/generate-spat-layout max/speaker-layout.txt
 ```
 
-### 4. Open Spat
+### 5. Open Spat
 
 - Open `max/OpenWFS Spat.maxpat`
 - Configure the input to be `BlackHole 64ch`, and the output to be your Digiface or AVB aggregate device
 - Start Max/MSP's audio
 
-### 5. Begin playing audio
+### 6. Begin playing audio
 
 You should now be able to play spatialised audio through the system. Each audio channel of BlackHole corresponds to a different sound source, so audio played through Channel 1 will be routed to Source 1, and so forth.
 
-### 6. Animate sound sources via OSC
+### 7. Animate sound sources via OSC
 
 Each sound source's spatial position can be controlled by sending OSC messages to the spatialiser. Note that, for consistency with Max/MSP Spat, sound sources are numbered from 1 upwards.
 

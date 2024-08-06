@@ -46,6 +46,11 @@ python3 bin/generate-spat-layout max/speaker-layout.txt
 
 - Open `max/OpenWFS Spat.maxpat`
 - Configure the input to be `BlackHole 64ch`, and the output to be your Digiface or AVB aggregate device
+- Update the Max patch with the current number of speakers (for example, 128). This should be done in 3 places:
+  - spat5.wfs~ @sources 4 @speakers **128** @mc 1
+  - spat5.viewer @initwith "/source/number 4, /speaker/number **128**
+  - spat5.cascade~ @channels **128** @mc 1
+- Click the "dump" button to read the layout configuration
 - Start Max/MSP's audio
 
 ### 6. Begin playing audio

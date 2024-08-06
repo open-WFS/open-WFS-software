@@ -4,3 +4,4 @@ pandas
 numpy
 python-osc
 coloredlogs
+signalflow

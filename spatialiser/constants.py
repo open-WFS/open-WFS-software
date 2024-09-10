@@ -7,6 +7,7 @@ from .module import Module
 #--------------------------------------------------------------------------------
 input_device_name = "BlackHole 64ch"
 output_device_name = "Digiface AVB (24119914)"
+# output_device_name = "BlackHole 64ch"
 midi_input_device_name = "IAC Driver Bus 1"
 
 #--------------------------------------------------------------------------------

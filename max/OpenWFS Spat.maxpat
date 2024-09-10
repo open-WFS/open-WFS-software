@@ -10,7 +10,7 @@
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 59.0, 106.0, 1537.0, 892.0 ],
+		"rect" : [ 165.0, 123.0, 1537.0, 892.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -843,17 +843,16 @@
 , 			{
 				"box" : 				{
 					"id" : "obj-15",
-					"linecount" : 3,
 					"maxclass" : "newobj",
 					"numinlets" : 1,
 					"numoutlets" : 3,
 					"outlettype" : [ "", "", "" ],
-					"patching_rect" : [ 420.0, 411.0, 350.0, 49.0 ],
+					"patching_rect" : [ 420.0, 411.0, 872.0, 22.0 ],
 					"saved_object_attributes" : 					{
 						"parameter_enable" : 0
 					}
 ,
-					"text" : "spat5.viewer @initwith \"/source/number 4, /speaker/number 64, /speaker/*/orientation/visible 1, /layout single, /window/size 600 600, /speaker/*/vumeter/visible 1\"",
+					"text" : "spat5.viewer @initwith \"/source/number 4, /speaker/number 128, /speaker/*/orientation/visible 1, /layout single, /window/size 600 600, /speaker/*/vumeter/visible 1\"",
 					"varname" : "spat5.viewer"
 				}
 
@@ -934,12 +933,12 @@
 					"numinlets" : 1,
 					"numoutlets" : 2,
 					"outlettype" : [ "multichannelsignal", "" ],
-					"patching_rect" : [ 30.0, 513.0, 256.0, 22.0 ],
+					"patching_rect" : [ 30.0, 513.0, 263.0, 22.0 ],
 					"saved_object_attributes" : 					{
 						"parameter_enable" : 0
 					}
 ,
-					"text" : "spat5.wfs~ @sources 4 @speakers 64 @mc 1"
+					"text" : "spat5.wfs~ @sources 4 @speakers 128 @mc 1"
 				}
 
 			}
@@ -954,7 +953,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-50", 0 ],
-					"midpoints" : [ 276.5, 555.0, 16.0, 555.0, 16.0, 735.0, 399.5, 735.0 ],
+					"midpoints" : [ 283.5, 555.0, 16.0, 555.0, 16.0, 735.0, 399.5, 735.0 ],
 					"source" : [ "obj-1", 1 ]
 				}
 

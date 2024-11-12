@@ -1,4 +1,5 @@
 from .module import Module
+import numpy as np
 
 #--------------------------------------------------------------------------------
 # The names of the audio input and output devices to use.
@@ -30,38 +31,38 @@ num_speakers_per_module = 32
 #--------------------------------------------------------------------------------
 # The number of sound sources to pan.
 #--------------------------------------------------------------------------------
-num_sources = 2
+num_sources = 8
 
 #--------------------------------------------------------------------------------
 # The centre coordinates of each OpenWFS module, in metres.
 # For the Y-axis, positive values are in front of the listener.
 #--------------------------------------------------------------------------------
 module_layout = [
-    Module([-1.598, 4.0, 0.0], 0),
-    Module([-0.533, 4.0, 0.0], 0),
-    Module([0.533, 4.0, 0.0], 0),
-    Module([1.598, 4.0, 0.0], 0),
+    Module([-1.05 - 0.15,  0.5, 1.0], -np.pi/2),
+    Module([-0.533,         1.0, 1.0], 0),
+    Module([0.533,          1.0, 1.0], 0),
+    Module([1.05 + 0.15,   0.5, 1.0], np.pi/2),
 ]
 
 num_speakers = num_speakers_per_module * len(module_layout)
 
 #--------------------------------------------------------------------------------
-# If the LFE channel is enabled, a low-passed mono mixdown of the output 
+# If the LFE channel is enabled, a low-passed mono mixdown of the output
 # content is sent to this channel index.
 #--------------------------------------------------------------------------------
 lfe_channel_index = num_speakers - 1
 crossover_frequency_lpf = 180
-crossover_frequency_hpf = 300
+crossover_frequency_hpf = 30
 
 #--------------------------------------------------------------------------------
 # Activate/deactivate various features.
 #  - lfe: relay a bass channel mono mixdown to the specified channel
 #  - midi: receive real-time MIDI controls to set the source locations
-#  - audio: enable/disable audio 
+#  - audio: enable/disable audio
 #  - randomise_lfos: add random positional oscillations to each source
 #--------------------------------------------------------------------------------
 disable_lfe = True
-disable_midi = True
+disable_midi = False
 disable_audio = False
 randomise_lfos = False
 

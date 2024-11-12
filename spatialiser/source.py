@@ -66,11 +66,13 @@ class SpatialSource:
 
             raw_input_channels = AudioIn(8) * 0.15
 
+            # Disable HPF for now
             # TODO: Why does BiquadFilter not work here?
-            input_channels = SVFilter(input=raw_input_channels,
-                                      filter_type="high_pass",
-                                      resonance=0.0,
-                                      cutoff=crossover_frequency_hpf)
+            # input_channels = SVFilter(input=raw_input_channels,
+            #                          filter_type="high_pass",
+            #                          resonance=0.0,
+            #                          cutoff=crossover_frequency_hpf)
+            input_channels = raw_input_channels
             
             # Create LFE channel
             if not disable_lfe:

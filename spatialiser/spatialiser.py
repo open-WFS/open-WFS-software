@@ -279,7 +279,7 @@ class Spatialiser:
         logger.info("You should hear bursts of white noise played through each channel sequentially.")
         logger.info("Press ctrl-c to stop sound check.")
         graph = create_audio_graph()
-        source = WhiteNoise() * 0.02
+        source = PinkNoise() * 0.2
         clock = Impulse(4)
         source = source * ASREnvelope(0.0, 0, 0.1, clock=clock)
         counter = Counter(clock, 0, self.num_speakers)
@@ -287,13 +287,19 @@ class Spatialiser:
         panner.play()
         graph.wait()
 
-    def dump_spat_layout(self):
+    def dump_spat_layout(self, speaker_mask: np.ndarray = None):
+        if speaker_mask is not None:
+            if len(speaker_mask) != self.num_speakers:
+                raise ValueError("speaker_mask must be a binary array with the same length as the number of speakers")
+        else:
+            speaker_mask = np.ones(self.num_speakers)
         output = "/speakers/xyz "
-        for speaker in self.speakers:
-            output = output + "%.3f %.3f %.3f " % (speaker.position[0], speaker.position[1], speaker.position[2])
+        for index, speaker in enumerate(self.speakers):
+            if speaker_mask[index]:
+                output = output + "%.3f %.3f %.3f " % (speaker.position[0], speaker.position[1], speaker.position[2])
         output = output.strip() + "\n"
         output = output + "/speaker/*/direction/xy 0 -1"
-        return output 
+        return output
 
     def tick(self):
         pass

@@ -9,14 +9,13 @@
 # Configuration should be done by modifying the contents of
 # spatialiser/constants.py, updating the `module_layout` lines with the
 # centroid positions of each of the OpenWFS modules.
-#
-# The output of the 
 #--------------------------------------------------------------------------------
 
 
 from spatialiser import Spatialiser
 import coloredlogs
 import argparse
+import numpy as np
 
 import logging
 logger = logging.getLogger(__file__)

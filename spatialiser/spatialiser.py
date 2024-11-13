@@ -21,6 +21,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class SpatialSpeaker:
     position: list
+    orientation: float
 
 
 class Spatialiser:
@@ -77,7 +78,7 @@ class Spatialiser:
                 module_speaker_z = module.position[2] + speaker.y * 0.001
                 self.add_speaker([module_speaker_x,
                                   module_speaker_y,
-                                  module_speaker_z])
+                                  module_speaker_z], module.rotation)
 
         # --------------------------------------------------------------------------------
         # Audio: Add sources
@@ -134,11 +135,11 @@ class Spatialiser:
         self.animation_thread.daemon = True
         self.animation_thread.start()
 
-    def add_speaker(self, position: list):
+    def add_speaker(self, position: list, orientation: float):
         index = len(self.speakers)
         logger.info("Added speaker %d at position: %s" % (index, np.round(position, 3)))
         self.visualiser.send_message("/speaker/%d/xyz" % (index + 1), position)
-        speaker = SpatialSpeaker(position)
+        speaker = SpatialSpeaker(position, orientation)
         self.speakers.append(speaker)
 
     def add_source(self, index: int, position: list, color: list):
@@ -298,7 +299,13 @@ class Spatialiser:
             if speaker_mask[index]:
                 output = output + "%.3f %.3f %.3f " % (speaker.position[0], speaker.position[1], speaker.position[2])
         output = output.strip() + "\n"
-        output = output + "/speaker/*/direction/xy 0 -1"
+        # output = output + "/speaker/*/direction/xy %.3f %.3f" % (direction_x, direction_y)
+        # output = output + "/speakers/direction"
+        for index, speaker in enumerate(self.speakers):
+            direction_y = -np.cos(speaker.orientation)
+            direction_x = np.sin(speaker.orientation)
+            output = output + "/speaker/%d/direction/xy %.3f %.3f\n" % (index + 1, direction_x, direction_y)
+            # output = output + " %.3f %.3f" % (direction_x, direction_y)
         return output
 
     def tick(self):

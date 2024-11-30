@@ -14,7 +14,7 @@
 # <x>, <y> and <z> are the floating-point coordinates, typically in metres.
 #--------------------------------------------------------------------------------
 
-from spatialiser.constants import osc_port
+from openwfs.constants import osc_port
 import pythonosc.udp_client
 import coloredlogs
 import argparse

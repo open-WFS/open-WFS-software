@@ -12,7 +12,7 @@
 #--------------------------------------------------------------------------------
 
 
-from spatialiser import Spatialiser
+from openwfs import Spatialiser
 import coloredlogs
 import argparse
 import numpy as np

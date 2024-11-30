@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from spatialiser import Spatialiser
+from openwfs import Spatialiser
 import coloredlogs
 import argparse
 import time

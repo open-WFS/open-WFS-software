@@ -1,0 +1,196 @@
+panel:
+  name: openwfs-v2a
+  dimensions: [250.0, 250.0, 10.0]
+drivers:
+  0:
+    position: [150.5, 199.5]
+    type: tweeter
+    diameter: 50.8
+    lpf_frequency: 0.0
+    hpf_frequency: 400.0
+  1:
+    position: [34.5, 215.5]
+    type: tweeter
+    diameter: 50.8
+    lpf_frequency: 0.0
+    hpf_frequency: 400.0
+  2:
+    position: [34.5, 34.5]
+    type: tweeter
+    diameter: 50.8
+    lpf_frequency: 0.0
+    hpf_frequency: 400.0
+  3:
+    position: [150.5, 34.5]
+    type: tweeter
+    diameter: 50.8
+    lpf_frequency: 0.0
+    hpf_frequency: 400.0
+  4:
+    position: [215.5, 34.5]
+    type: tweeter
+    diameter: 50.8
+    lpf_frequency: 0.0
+    hpf_frequency: 400.0
+  5:
+    position: [215.5, 99.5]
+    type: tweeter
+    diameter: 50.8
+    lpf_frequency: 0.0
+    hpf_frequency: 400.0
+  6:
+    position: [215.5, 164.5]
+    type: tweeter
+    diameter: 50.8
+    lpf_frequency: 0.0
+    hpf_frequency: 400.0
+  7:
+    position: [93.7094, 117.0]
+    type: woofer
+    diameter: 101.6
+    lpf_frequency: 400.0
+    hpf_frequency: 0.0
+  8:
+    position: [300.5, 150.5]
+    type: tweeter
+    diameter: 50.8
+    lpf_frequency: 0.0
+    hpf_frequency: 400.0
+  9:
+    position: [284.5, 34.5]
+    type: tweeter
+    diameter: 50.8
+    lpf_frequency: 0.0
+    hpf_frequency: 400.0
+  10:
+    position: [465.5, 34.5]
+    type: tweeter
+    diameter: 50.8
+    lpf_frequency: 0.0
+    hpf_frequency: 400.0
+  11:
+    position: [465.5, 150.5]
+    type: tweeter
+    diameter: 50.8
+    lpf_frequency: 0.0
+    hpf_frequency: 400.0
+  12:
+    position: [465.5, 215.5]
+    type: tweeter
+    diameter: 50.8
+    lpf_frequency: 0.0
+    hpf_frequency: 400.0
+  13:
+    position: [400.5, 215.5]
+    type: tweeter
+    diameter: 50.8
+    lpf_frequency: 0.0
+    hpf_frequency: 400.0
+  14:
+    position: [335.5, 215.5]
+    type: tweeter
+    diameter: 50.8
+    lpf_frequency: 0.0
+    hpf_frequency: 400.0
+  15:
+    position: [383.0, 93.7094]
+    type: woofer
+    diameter: 101.6
+    lpf_frequency: 400.0
+    hpf_frequency: 0.0
+  16:
+    position: [349.5, 300.5]
+    type: tweeter
+    diameter: 50.8
+    lpf_frequency: 0.0
+    hpf_frequency: 400.0
+  17:
+    position: [465.5, 284.5]
+    type: tweeter
+    diameter: 50.8
+    lpf_frequency: 0.0
+    hpf_frequency: 400.0
+  18:
+    position: [465.5, 465.5]
+    type: tweeter
+    diameter: 50.8
+    lpf_frequency: 0.0
+    hpf_frequency: 400.0
+  19:
+    position: [349.5, 465.5]
+    type: tweeter
+    diameter: 50.8
+    lpf_frequency: 0.0
+    hpf_frequency: 400.0
+  20:
+    position: [284.5, 465.5]
+    type: tweeter
+    diameter: 50.8
+    lpf_frequency: 0.0
+    hpf_frequency: 400.0
+  21:
+    position: [284.5, 400.5]
+    type: tweeter
+    diameter: 50.8
+    lpf_frequency: 0.0
+    hpf_frequency: 400.0
+  22:
+    position: [284.5, 335.5]
+    type: tweeter
+    diameter: 50.8
+    lpf_frequency: 0.0
+    hpf_frequency: 400.0
+  23:
+    position: [406.2906, 383.0]
+    type: woofer
+    diameter: 101.6
+    lpf_frequency: 400.0
+    hpf_frequency: 0.0
+  24:
+    position: [199.5, 349.5]
+    type: tweeter
+    diameter: 50.8
+    lpf_frequency: 0.0
+    hpf_frequency: 400.0
+  25:
+    position: [215.5, 465.5]
+    type: tweeter
+    diameter: 50.8
+    lpf_frequency: 0.0
+    hpf_frequency: 400.0
+  26:
+    position: [34.5, 465.5]
+    type: tweeter
+    diameter: 50.8
+    lpf_frequency: 0.0
+    hpf_frequency: 400.0
+  27:
+    position: [34.5, 349.5]
+    type: tweeter
+    diameter: 50.8
+    lpf_frequency: 0.0
+    hpf_frequency: 400.0
+  28:
+    position: [34.5, 284.5]
+    type: tweeter
+    diameter: 50.8
+    lpf_frequency: 0.0
+    hpf_frequency: 400.0
+  29:
+    position: [99.5, 284.5]
+    type: tweeter
+    diameter: 50.8
+    lpf_frequency: 0.0
+    hpf_frequency: 400.0
+  30:
+    position: [164.5, 284.5]
+    type: tweeter
+    diameter: 50.8
+    lpf_frequency: 0.0
+    hpf_frequency: 400.0
+  31:
+    position: [117.0, 406.2906]
+    type: woofer
+    diameter: 101.6
+    lpf_frequency: 400.0
+    hpf_frequency: 0.0

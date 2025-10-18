@@ -1,0 +1,68 @@
+panel:
+  name: openwfs-v1
+  dimensions: [1050.0, 16.0, 18.0]
+drivers:
+  0:
+    position: [44.5, 44.5]
+  1:
+    position: [114.21, 44.5]
+  2:
+    position: [183.92, 44.5]
+  3:
+    position: [253.63, 44.5]
+  4:
+    position: [323.34, 44.5]
+  5:
+    position: [393.05, 44.5]
+  6:
+    position: [462.76, 44.5]
+  7:
+    position: [532.47, 44.5]
+  8:
+    position: [602.18, 44.5]
+  9:
+    position: [671.89, 44.5]
+  10:
+    position: [741.6, 44.5]
+  11:
+    position: [811.31, 44.5]
+  12:
+    position: [881.02, 44.5]
+  13:
+    position: [950.73, 44.5]
+  14:
+    position: [1020.44, 44.5]
+  15:
+    position: [44.5, 105.5]
+  16:
+    position: [105.5, 105.5]
+  17:
+    position: [166.5, 105.5]
+  18:
+    position: [227.5, 105.5]
+  19:
+    position: [288.5, 105.5]
+  20:
+    position: [349.5, 105.5]
+  21:
+    position: [410.5, 105.5]
+  22:
+    position: [471.5, 105.5]
+  23:
+    position: [532.5, 105.5]
+  24:
+    position: [593.5, 105.5]
+  25:
+    position: [654.5, 105.5]
+  26:
+    position: [715.5, 105.5]
+  27:
+    position: [776.5, 105.5]
+  28:
+    position: [837.5, 105.5]
+  29:
+    position: [898.5, 105.5]
+  30:
+    position: [959.5, 105.5]
+  31:
+    position: [1020.5, 105.5]

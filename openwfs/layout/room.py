@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from .panel import Panel
 from .panel_model import PanelModel
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 @dataclass
@@ -70,7 +71,7 @@ class Room:
                           xlim=(-self.dimensions[0]/2, self.dimensions[0]/2),
                           ylim=(-self.dimensions[1]/2, self.dimensions[1]/2),
                           zlim=(0, self.dimensions[2]))
-        import matplotlib.pyplot as plt
+        
         plt.show()
 
 

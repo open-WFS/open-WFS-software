@@ -1,4 +1,5 @@
 
+import os
 import yaml
 import argparse
 from dataclasses import dataclass
@@ -30,6 +31,7 @@ class Room:
         for index, panel_data in enumerate(data["panels"]):
             panel_data["index"] = index
             panel_data["position"] = np.array(panel_data["position"]) * 1000
+            panel_data["rotation"] = np.radians(panel_data["rotation"])
             if "panel_model" not in panel_data:
                 panel_data["panel_model"] = panel_model
             panel = Panel.from_dict(panel_data)
@@ -51,6 +53,16 @@ class Room:
             print(f"   - Model: {panel.model.name}")
             print(f"   - Position: {panel.position}")
             print(f"   - Rotation: {panel.rotation}")
+
+    def export_spat_layout(self, output_file: str):
+        with open(output_file, "w") as f:
+            f.write(f"/speakers/xyz ")
+            for panel in self.panels:
+                for driver in panel.drivers:
+                    position = driver.position / 1000.0  # Convert to meters
+                    f.write(f"{position[0]:.3f} {position[1]:.3f} {position[2]:.3f} ")
+            f.write("\n")
+            f.write(f"/speaker/*/direction/xy 0 -1\n")
 
     def visualise(self):
         from ..visualisation import render_cuboids_3d, Cuboid
@@ -82,6 +94,9 @@ if __name__ == "__main__":
     parser.add_argument("--export-spat-layout", "-o", default=None, help="Path to export Spat layout file")
     args = parser.parse_args()
 
+    if not os.path.exists(args.yaml_file):
+        args.yaml_file = os.path.join(os.path.dirname(__file__), "../../data/room-layouts/%s.yaml" % args.yaml_file)
+
     room = Room.from_yaml(args.yaml_file)
     room.dump()
 
@@ -89,5 +104,5 @@ if __name__ == "__main__":
         room.visualise()
 
     if args.export_spat_layout:
-        room.export_to_spat_layout(args.export_spat_layout)
+        room.export_spat_layout(args.export_spat_layout)
         print(f"Exported Spat layout to {args.export_spat_layout}")

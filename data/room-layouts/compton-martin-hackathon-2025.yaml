@@ -1,14 +1,14 @@
 name: Compton Martin living room
-panel_model: openwfs-v1
+panel_model: openwfs-v2a
 dimensions: [4, 6, 2.5]
 origin: [2, 5]
 panels:
   - id: 0
-    position: [0.0, 0.0, 1.5]
+    position: [0.0, 1.5, 1.5]
     rotation: [0.0, 0.0, 0.0]
-  - id: 1
-    position: [2.0, -1.0, 1.5]
-    rotation: [0.0, 0.0, 90.0]
-  - id: 2
-    position: [-2.0, -1.0, 1.5]
-    rotation: [0.0, 0.0, -90.0]
+  # - id: 1
+  #   position: [2.0, -1.0, 1.5]
+  #   rotation: [0.0, 0.0, 90.0]
+  # - id: 2
+  #   position: [-2.0, -1.0, 1.5]
+  #   rotation: [0.0, 0.0, -90.0]

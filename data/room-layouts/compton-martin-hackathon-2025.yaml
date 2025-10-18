@@ -8,7 +8,7 @@ panels:
     rotation: [0.0, 0.0, 0.0]
   - id: 1
     position: [2.0, -1.0, 1.5]
-    rotation: [90.0, 0.0, 0.0]
+    rotation: [0.0, 0.0, 90.0]
   - id: 2
     position: [-2.0, -1.0, 1.5]
-    rotation: [-90.0, 0.0, 0.0]
+    rotation: [0.0, 0.0, -90.0]

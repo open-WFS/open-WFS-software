@@ -1,6 +1,6 @@
 panel:
   name: openwfs-v1
-  dimensions: [1050.0, 16.0, 18.0]
+  dimensions: [1050.0, 160.0, 180.0]
 drivers:
   0:
     position: [44.5, 44.5]

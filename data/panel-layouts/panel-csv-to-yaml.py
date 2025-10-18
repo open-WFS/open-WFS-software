@@ -26,7 +26,7 @@ def main(input_file, output_file=None, name="openwfs-v2a", panel_width=250, pane
     data = {
         "panel": {
             "name": name,
-            "dimensions": [panel_width, panel_height, panel_depth],
+            "dimensions": [panel_width, panel_depth, panel_height],
         },
         "drivers": drivers
     }

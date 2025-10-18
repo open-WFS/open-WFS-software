@@ -10,7 +10,7 @@
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 34.0, 100.0, 1044.0, 848.0 ],
+		"rect" : [ 34.0, 100.0, 1444.0, 848.0 ],
 		"gridsize" : [ 15.0, 15.0 ],
 		"boxes" : [ 			{
 				"box" : 				{
@@ -82,8 +82,8 @@
 					"numinlets" : 1,
 					"numoutlets" : 3,
 					"outlettype" : [ "", "bang", "int" ],
-					"patching_rect" : [ 419.5, 264.0, 183.0, 22.0 ],
-					"text" : "text speaker-layout-linear-4x1.txt"
+					"patching_rect" : [ 419.5, 264.0, 126.0, 22.0 ],
+					"text" : "text speaker-layout.txt"
 				}
 
 			}
@@ -734,12 +734,12 @@
 					"numinlets" : 1,
 					"numoutlets" : 2,
 					"outlettype" : [ "multichannelsignal", "" ],
-					"patching_rect" : [ 30.0, 703.0, 221.0, 22.0 ],
+					"patching_rect" : [ 30.0, 703.0, 215.0, 22.0 ],
 					"saved_object_attributes" : 					{
 						"parameter_enable" : 0
 					}
 ,
-					"text" : "spat5.cascade~ @channels 128 @mc 1"
+					"text" : "spat5.cascade~ @channels 32 @mc 1"
 				}
 
 			}
@@ -768,11 +768,12 @@
 , 			{
 				"box" : 				{
 					"id" : "obj-15",
+					"linecount" : 2,
 					"maxclass" : "newobj",
 					"numinlets" : 1,
 					"numoutlets" : 3,
 					"outlettype" : [ "", "", "" ],
-					"patching_rect" : [ 420.0, 411.0, 866.0, 22.0 ],
+					"patching_rect" : [ 420.0, 411.0, 855.0, 35.0 ],
 					"saved_object_attributes" : 					{
 						"parameter_enable" : 0
 					}

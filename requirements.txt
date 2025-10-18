@@ -5,3 +5,5 @@ numpy
 python-osc
 coloredlogs
 signalflow
+pyYAML
+matplotlib

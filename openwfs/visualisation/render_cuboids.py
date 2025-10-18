@@ -10,7 +10,7 @@ def render_cuboids_3d(cuboids,
     """
     Render cuboids in an interactive 3D matplotlib plot
     """
-    fig = plt.figure(figsize=(12, 10), dpi=72)
+    fig = plt.figure(figsize=(12, 12), dpi=72)
     ax = fig.add_subplot(111, projection='3d')
     
     # Plot each cuboid
@@ -46,8 +46,9 @@ def render_cuboids_3d(cuboids,
     # Set equal aspect ratio and appropriate limits
     all_vertices = np.vstack([cuboid.get_vertices() for cuboid in cuboids])
     max_range = np.array([all_vertices[:, 0].max() - all_vertices[:, 0].min(),
-                         all_vertices[:, 1].max() - all_vertices[:, 1].min(),
-                         all_vertices[:, 2].max() - all_vertices[:, 2].min()]).max() / 2.0
+                          all_vertices[:, 1].max() - all_vertices[:, 1].min(),
+                          all_vertices[:, 2].max() - all_vertices[:, 2].min(),
+                         2000.0]).max() / 2.0
     
     mid_x = (all_vertices[:, 0].max() + all_vertices[:, 0].min()) * 0.5
     mid_y = (all_vertices[:, 1].max() + all_vertices[:, 1].min()) * 0.5
@@ -55,8 +56,11 @@ def render_cuboids_3d(cuboids,
     
     ax.set_xlim(mid_x - max_range, mid_x + max_range)
     ax.set_ylim(mid_y - max_range, mid_y + max_range)
-    ax.set_zlim(0, mid_z + max_range)
+    ax.set_zlim(mid_z - max_range, mid_z + max_range)
     
-    # plt.tight_layout()
+    # Force equal aspect ratio for 3D plot
+    ax.set_box_aspect([1,1,1])
+    
+    plt.tight_layout()
     
     return fig, ax

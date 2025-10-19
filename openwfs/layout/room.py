@@ -64,6 +64,42 @@ class Room:
             f.write("\n")
             f.write(f"/speaker/*/direction/xy 0 -1\n")
 
+    def export_complete_room_layout(self, output_file: str):
+        # Export the complete room layout to YAML, including room properties: name, dimensions, origin
+        # For each panel: panel ID, and a list of drivers, including exact positions in mm, orientation in degrees, and diameter in mm
+        room_data = {
+            "name": self.name,
+            "dimensions": (self.dimensions / 1000).tolist(),  # Convert to meters
+            "origin": (self.origin / 1000).tolist(),  # Convert to meters
+            "panels": []
+        }
+
+        for panel in self.panels:
+            panel_data = {
+                "index": panel.index,
+                "drivers": []
+            }
+            for driver in panel.drivers:
+                driver_data = {
+                    "index": driver.index,
+                    "position": (driver.position / 1000).tolist(),  # Convert to meters
+                    "diameter": driver.model.diameter / 1000  # Convert to meters
+                }
+                panel_data["drivers"].append(driver_data)
+            room_data["panels"].append(panel_data)
+
+        # Export YAML, with lists of numbers represented on one line, but lists of dicts on separate lines
+        def represent_list_flow(dumper, data):
+            # Only use flow style for lists containing only numbers (int/float)
+            if data and all(isinstance(item, (int, float)) for item in data):
+                return dumper.represent_sequence('tag:yaml.org,2002:seq', data, flow_style=True)
+            else:
+                return dumper.represent_sequence('tag:yaml.org,2002:seq', data, flow_style=False)
+        yaml.add_representer(list, represent_list_flow)
+
+        with open(output_file, "w") as f:
+            yaml.dump(room_data, f, sort_keys=False)
+
     def visualise(self):
         from ..visualisation import render_cuboids_3d, Cuboid
 
@@ -71,7 +107,7 @@ class Room:
         # Constructor for Cuboid:
         # (self, position, dimensions, rotation_angles=(0, 0, 0), color='blue', alpha=0.7):
         for panel in self.panels:
-            print(panel.model.dimensions)
+            print(panel.model.dimensions, panel.rotation)
             cuboid = Cuboid(position=panel.position,
                             dimensions=panel.model.dimensions,
                             rotation_angles=panel.rotation,
@@ -92,6 +128,7 @@ if __name__ == "__main__":
     parser.add_argument("yaml_file", help="Path to the room layout YAML file")
     parser.add_argument("--visualise", "-v", action="store_true", help="Show a 3D visualisation of the room layout")
     parser.add_argument("--export-spat-layout", "-o", default=None, help="Path to export Spat layout file")
+    parser.add_argument("--export-complete-layout", "-c", default=None, help="Path to export complete room layout YAML file")
     args = parser.parse_args()
 
     if not os.path.exists(args.yaml_file):
@@ -106,3 +143,7 @@ if __name__ == "__main__":
     if args.export_spat_layout:
         room.export_spat_layout(args.export_spat_layout)
         print(f"Exported Spat layout to {args.export_spat_layout}")
+    
+    if args.export_complete_layout:
+        room.export_complete_room_layout(args.export_complete_layout)
+        print(f"Exported complete room layout to {args.export_complete_layout}")

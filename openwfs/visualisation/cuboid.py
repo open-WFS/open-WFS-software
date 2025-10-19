@@ -57,7 +57,7 @@ class Cuboid:
     
     def _rotate_vertices(self, vertices):
         """Apply rotation transformations to vertices."""
-        rx, ry, rz = np.radians(self.rotation_angles)
+        rx, ry, rz = self.rotation_angles
         
         # Rotation matrices
         Rx = np.array([

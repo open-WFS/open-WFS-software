@@ -31,9 +31,9 @@ def main(input_file, output_file=None, name="openwfs-v2a", panel_width=250, pane
         "drivers": drivers
     }
 
+    # Export YAML, with lists (for coordinates) represented on one line
     def represent_list_flow(dumper, data):
         return dumper.represent_sequence('tag:yaml.org,2002:seq', data, flow_style=True)
-
     yaml.add_representer(list, represent_list_flow)
 
     with open(output_file, "w") as f:

@@ -1,5 +1,6 @@
 from __future__ import annotations
 import os
+import yaml
 import argparse
 from dataclasses import dataclass
 
@@ -36,8 +37,6 @@ class PanelModel:
         Args:
             file_path (str): Path to the YAML file.
         """
-        import yaml
-
         with open(file_path, "r") as f:
             data = yaml.safe_load(f)
         panel_data = data["panel"]

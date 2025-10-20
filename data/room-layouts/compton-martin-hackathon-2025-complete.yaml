@@ -5,294 +5,98 @@ panels:
 - index: 0
   drivers:
   - index: 0
-    position: [-0.0995, 1.0, 1.6495]
+    position: [-0.0995, 1.0, 0.1495]
     diameter: 0.0508
   - index: 1
-    position: [-0.2155, 1.0, 1.6655]
+    position: [-0.2155, 1.0, 0.1655]
     diameter: 0.0508
   - index: 2
-    position: [-0.2155, 1.0, 1.4845]
+    position: [-0.2155, 1.0, -0.0155]
     diameter: 0.0508
   - index: 3
-    position: [-0.0995, 1.0, 1.4845]
+    position: [-0.0995, 1.0, -0.0155]
     diameter: 0.0508
   - index: 4
-    position: [-0.0345, 1.0, 1.4845]
+    position: [-0.0345, 1.0, -0.0155]
     diameter: 0.0508
   - index: 5
-    position: [-0.0345, 1.0, 1.5495]
+    position: [-0.0345, 1.0, 0.0495]
     diameter: 0.0508
   - index: 6
-    position: [-0.0345, 1.0, 1.6145]
+    position: [-0.0345, 1.0, 0.1145]
     diameter: 0.0508
   - index: 7
-    position: [-0.15629059999999997, 1.0, 1.567]
+    position: [-0.15629059999999997, 1.0, 0.067]
     diameter: 0.1016
   - index: 8
-    position: [0.0505, 1.0, 1.6005]
+    position: [0.0505, 1.0, 0.1005]
     diameter: 0.0508
   - index: 9
-    position: [0.0345, 1.0, 1.4845]
+    position: [0.0345, 1.0, -0.0155]
     diameter: 0.0508
   - index: 10
-    position: [0.2155, 1.0, 1.4845]
+    position: [0.2155, 1.0, -0.0155]
     diameter: 0.0508
   - index: 11
-    position: [0.2155, 1.0, 1.6005]
+    position: [0.2155, 1.0, 0.1005]
     diameter: 0.0508
   - index: 12
-    position: [0.2155, 1.0, 1.6655]
+    position: [0.2155, 1.0, 0.1655]
     diameter: 0.0508
   - index: 13
-    position: [0.1505, 1.0, 1.6655]
+    position: [0.1505, 1.0, 0.1655]
     diameter: 0.0508
   - index: 14
-    position: [0.0855, 1.0, 1.6655]
+    position: [0.0855, 1.0, 0.1655]
     diameter: 0.0508
   - index: 15
-    position: [0.133, 1.0, 1.5437094]
+    position: [0.133, 1.0, 0.0437094]
     diameter: 0.1016
   - index: 16
-    position: [0.0995, 1.0, 1.7505]
+    position: [0.0995, 1.0, 0.2505]
     diameter: 0.0508
   - index: 17
-    position: [0.2155, 1.0, 1.7345]
+    position: [0.2155, 1.0, 0.2345]
     diameter: 0.0508
   - index: 18
-    position: [0.2155, 1.0, 1.9155]
+    position: [0.2155, 1.0, 0.4155]
     diameter: 0.0508
   - index: 19
-    position: [0.0995, 1.0, 1.9155]
+    position: [0.0995, 1.0, 0.4155]
     diameter: 0.0508
   - index: 20
-    position: [0.0345, 1.0, 1.9155]
+    position: [0.0345, 1.0, 0.4155]
     diameter: 0.0508
   - index: 21
-    position: [0.0345, 1.0, 1.8505]
+    position: [0.0345, 1.0, 0.3505]
     diameter: 0.0508
   - index: 22
-    position: [0.0345, 1.0, 1.7855]
+    position: [0.0345, 1.0, 0.2855]
     diameter: 0.0508
   - index: 23
-    position: [0.15629059999999997, 1.0, 1.833]
+    position: [0.15629059999999997, 1.0, 0.333]
     diameter: 0.1016
   - index: 24
-    position: [-0.0505, 1.0, 1.7995]
+    position: [-0.0505, 1.0, 0.2995]
     diameter: 0.0508
   - index: 25
-    position: [-0.0345, 1.0, 1.9155]
+    position: [-0.0345, 1.0, 0.4155]
     diameter: 0.0508
   - index: 26
-    position: [-0.2155, 1.0, 1.9155]
+    position: [-0.2155, 1.0, 0.4155]
     diameter: 0.0508
   - index: 27
-    position: [-0.2155, 1.0, 1.7995]
+    position: [-0.2155, 1.0, 0.2995]
     diameter: 0.0508
   - index: 28
-    position: [-0.2155, 1.0, 1.7345]
+    position: [-0.2155, 1.0, 0.2345]
     diameter: 0.0508
   - index: 29
-    position: [-0.1505, 1.0, 1.7345]
+    position: [-0.1505, 1.0, 0.2345]
     diameter: 0.0508
   - index: 30
-    position: [-0.0855, 1.0, 1.7345]
+    position: [-0.0855, 1.0, 0.2345]
     diameter: 0.0508
   - index: 31
-    position: [-0.133, 1.0, 1.8562906000000001]
-    diameter: 0.1016
-- index: 1
-  drivers:
-  - index: 0
-    position: [-1.0, -0.0995, 1.6495]
-    diameter: 0.0508
-  - index: 1
-    position: [-1.0, -0.2155, 1.6655]
-    diameter: 0.0508
-  - index: 2
-    position: [-1.0, -0.2155, 1.4845]
-    diameter: 0.0508
-  - index: 3
-    position: [-1.0, -0.0995, 1.4845]
-    diameter: 0.0508
-  - index: 4
-    position: [-1.0, -0.0345, 1.4845]
-    diameter: 0.0508
-  - index: 5
-    position: [-1.0, -0.0345, 1.5495]
-    diameter: 0.0508
-  - index: 6
-    position: [-1.0, -0.0345, 1.6145]
-    diameter: 0.0508
-  - index: 7
-    position: [-1.0, -0.15629059999999997, 1.567]
-    diameter: 0.1016
-  - index: 8
-    position: [-1.0, 0.0505, 1.6005]
-    diameter: 0.0508
-  - index: 9
-    position: [-1.0, 0.0345, 1.4845]
-    diameter: 0.0508
-  - index: 10
-    position: [-1.0, 0.2155, 1.4845]
-    diameter: 0.0508
-  - index: 11
-    position: [-1.0, 0.2155, 1.6005]
-    diameter: 0.0508
-  - index: 12
-    position: [-1.0, 0.2155, 1.6655]
-    diameter: 0.0508
-  - index: 13
-    position: [-1.0, 0.1505, 1.6655]
-    diameter: 0.0508
-  - index: 14
-    position: [-1.0, 0.0855, 1.6655]
-    diameter: 0.0508
-  - index: 15
-    position: [-1.0, 0.133, 1.5437094]
-    diameter: 0.1016
-  - index: 16
-    position: [-1.0, 0.0995, 1.7505]
-    diameter: 0.0508
-  - index: 17
-    position: [-1.0, 0.2155, 1.7345]
-    diameter: 0.0508
-  - index: 18
-    position: [-1.0, 0.2155, 1.9155]
-    diameter: 0.0508
-  - index: 19
-    position: [-1.0, 0.0995, 1.9155]
-    diameter: 0.0508
-  - index: 20
-    position: [-1.0, 0.0345, 1.9155]
-    diameter: 0.0508
-  - index: 21
-    position: [-1.0, 0.0345, 1.8505]
-    diameter: 0.0508
-  - index: 22
-    position: [-1.0, 0.0345, 1.7855]
-    diameter: 0.0508
-  - index: 23
-    position: [-1.0, 0.15629059999999997, 1.833]
-    diameter: 0.1016
-  - index: 24
-    position: [-1.0, -0.0505, 1.7995]
-    diameter: 0.0508
-  - index: 25
-    position: [-1.0, -0.0345, 1.9155]
-    diameter: 0.0508
-  - index: 26
-    position: [-1.0, -0.2155, 1.9155]
-    diameter: 0.0508
-  - index: 27
-    position: [-1.0, -0.2155, 1.7995]
-    diameter: 0.0508
-  - index: 28
-    position: [-1.0, -0.2155, 1.7345]
-    diameter: 0.0508
-  - index: 29
-    position: [-1.0, -0.1505, 1.7345]
-    diameter: 0.0508
-  - index: 30
-    position: [-1.0, -0.0855, 1.7345]
-    diameter: 0.0508
-  - index: 31
-    position: [-1.0, -0.133, 1.8562906000000001]
-    diameter: 0.1016
-- index: 2
-  drivers:
-  - index: 0
-    position: [1.0, 0.0995, 1.6495]
-    diameter: 0.0508
-  - index: 1
-    position: [1.0, 0.2155, 1.6655]
-    diameter: 0.0508
-  - index: 2
-    position: [1.0, 0.2155, 1.4845]
-    diameter: 0.0508
-  - index: 3
-    position: [1.0, 0.0995, 1.4845]
-    diameter: 0.0508
-  - index: 4
-    position: [1.0, 0.0345, 1.4845]
-    diameter: 0.0508
-  - index: 5
-    position: [1.0, 0.0345, 1.5495]
-    diameter: 0.0508
-  - index: 6
-    position: [1.0, 0.0345, 1.6145]
-    diameter: 0.0508
-  - index: 7
-    position: [1.0, 0.15629059999999997, 1.567]
-    diameter: 0.1016
-  - index: 8
-    position: [1.0, -0.0505, 1.6005]
-    diameter: 0.0508
-  - index: 9
-    position: [1.0, -0.0345, 1.4845]
-    diameter: 0.0508
-  - index: 10
-    position: [1.0, -0.2155, 1.4845]
-    diameter: 0.0508
-  - index: 11
-    position: [1.0, -0.2155, 1.6005]
-    diameter: 0.0508
-  - index: 12
-    position: [1.0, -0.2155, 1.6655]
-    diameter: 0.0508
-  - index: 13
-    position: [1.0, -0.1505, 1.6655]
-    diameter: 0.0508
-  - index: 14
-    position: [1.0, -0.0855, 1.6655]
-    diameter: 0.0508
-  - index: 15
-    position: [1.0, -0.133, 1.5437094]
-    diameter: 0.1016
-  - index: 16
-    position: [1.0, -0.0995, 1.7505]
-    diameter: 0.0508
-  - index: 17
-    position: [1.0, -0.2155, 1.7345]
-    diameter: 0.0508
-  - index: 18
-    position: [1.0, -0.2155, 1.9155]
-    diameter: 0.0508
-  - index: 19
-    position: [1.0, -0.0995, 1.9155]
-    diameter: 0.0508
-  - index: 20
-    position: [1.0, -0.0345, 1.9155]
-    diameter: 0.0508
-  - index: 21
-    position: [1.0, -0.0345, 1.8505]
-    diameter: 0.0508
-  - index: 22
-    position: [1.0, -0.0345, 1.7855]
-    diameter: 0.0508
-  - index: 23
-    position: [1.0, -0.15629059999999997, 1.833]
-    diameter: 0.1016
-  - index: 24
-    position: [1.0, 0.0505, 1.7995]
-    diameter: 0.0508
-  - index: 25
-    position: [1.0, 0.0345, 1.9155]
-    diameter: 0.0508
-  - index: 26
-    position: [1.0, 0.2155, 1.9155]
-    diameter: 0.0508
-  - index: 27
-    position: [1.0, 0.2155, 1.7995]
-    diameter: 0.0508
-  - index: 28
-    position: [1.0, 0.2155, 1.7345]
-    diameter: 0.0508
-  - index: 29
-    position: [1.0, 0.1505, 1.7345]
-    diameter: 0.0508
-  - index: 30
-    position: [1.0, 0.0855, 1.7345]
-    diameter: 0.0508
-  - index: 31
-    position: [1.0, 0.133, 1.8562906000000001]
+    position: [-0.133, 1.0, 0.35629059999999996]
     diameter: 0.1016

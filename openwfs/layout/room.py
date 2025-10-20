@@ -3,7 +3,7 @@ import os
 import yaml
 import argparse
 from dataclasses import dataclass
-from .panel import Panel
+from .panel import Panel, Driver
 from .panel_model import PanelModel
 import numpy as np
 import matplotlib.pyplot as plt
@@ -19,6 +19,9 @@ class Room:
 
     @classmethod
     def from_yaml(cls, file_path: str):
+        if not os.path.exists(file_path):
+            file_path = os.path.join("data", "room-layouts", "%s.yaml" % file_path)
+
         with open(file_path, "r") as f:
             data = yaml.safe_load(f)
 
@@ -37,11 +40,11 @@ class Room:
             panel = Panel.from_dict(panel_data)
             panels.append(panel)
 
-        return cls(name=name,
-                   panel_model=panel_model,
-                   dimensions=np.array(dimensions) * 1000,
-                   origin=np.array(origin) * 1000,
-                   panels=panels)
+        return Room(name=name,
+                    panel_model=panel_model,
+                    dimensions=np.array(dimensions) * 1000,
+                    origin=np.array(origin) * 1000,
+                    panels=panels)
 
     def dump(self):
         print("Room name:", self.name)
@@ -63,6 +66,14 @@ class Room:
                     f.write(f"{position[0]:.3f} {position[1]:.3f} {position[2]:.3f} ")
             f.write("\n")
             f.write(f"/speaker/*/direction/xy 0 -1\n")
+
+    def get_drivers(self):
+        drivers = []
+        for panel in self.panels:
+            drivers += panel.drivers
+        return drivers
+
+    drivers = property(get_drivers)
 
     def export_complete_room_layout(self, output_file: str):
         # Export the complete room layout to YAML, including room properties: name, dimensions, origin

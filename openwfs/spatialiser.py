@@ -34,13 +34,11 @@ class Spatialiser:
         self.graph = AudioGraph(config=self.graph_config)
 
         if self.show_status:
-            self.graph.poll(2)
+            self.graph.poll(1)
 
         self.spatial_environment = SpatialEnvironment()
         for speaker_index, driver in enumerate(self.room.drivers):
-            position_m = driver.position * 0.001
-            print(position_m)
-            self.spatial_environment.add_speaker(speaker_index, *list(position_m))
+            self.spatial_environment.add_speaker(speaker_index, *list(driver.position * 0.001))
 
         raw_input = AudioIn(self.num_sources)
 
@@ -59,6 +57,7 @@ class Spatialiser:
         # create an OSC server
         dispatcher = Dispatcher()
         dispatcher.map("/source/*/xyz", self.handle_osc_set_source_position)
+        dispatcher.map("/source/*/radius", self.handle_osc_set_source_radius)
         dispatcher.set_default_handler(self.handle_osc)
         self.osc_server = osc_server.ThreadingOSCUDPServer(("127.0.0.1", self.config.osc_port),
                                                            dispatcher)
@@ -66,21 +65,29 @@ class Spatialiser:
         self.thread.start()
 
     def stop(self):
-        self.graph.clear()
-        self.graph.destroy()
-        self.graph = None
+        # For some reason, calling these lines causes the application to hang sometimes.
+        # self.osc_server.shutdown()
+        # self.graph.clear()
+        # self.graph.destroy()
         self.sources = []
+        
 
     def handle_osc_set_source_position(self, address, *args):
         # Spat OSC format: /source/*/xyz
-        address_parts = address.split("/")
-
         # For compliance with Spat OSC format, assume numbering from 1
-        source_index = int(address_parts[2]) - 1
+        source_index = int(address.split("/")[2]) - 1
 
         x, y, z = args
         logger.info("Set source %d position: %s %s %s" % (source_index, x, y, z))
         self.sources[source_index].position = [x, y, z]
+    
+    def handle_osc_set_source_radius(self, address, *args):
+        # Spat OSC format: /source/*/radius
+        source_index = int(address.split("/")[2]) - 1
+
+        radius = args[0]
+        logger.info("Set source %d radius: %s" % (source_index, radius))
+        self.sources[source_index].radius = radius
 
     def handle_osc(self, address, *args):
         logger.warning("OSC address not handled: %s (%s)" % (address, args))

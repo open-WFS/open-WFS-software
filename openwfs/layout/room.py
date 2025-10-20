@@ -80,8 +80,8 @@ class Room:
         # For each panel: panel ID, and a list of drivers, including exact positions in mm, orientation in degrees, and diameter in mm
         room_data = {
             "name": self.name,
-            "dimensions": (self.dimensions / 1000).tolist(),  # Convert to meters
-            "origin": (self.origin / 1000).tolist(),  # Convert to meters
+            "dimensions": (self.dimensions / 1000).tolist(),
+            "origin": (self.origin / 1000).tolist(),
             "panels": []
         }
 
@@ -93,8 +93,8 @@ class Room:
             for driver in panel.drivers:
                 driver_data = {
                     "index": driver.index,
-                    "position": (driver.position / 1000).tolist(),  # Convert to meters
-                    "diameter": driver.model.diameter / 1000  # Convert to meters
+                    "position": (driver.position / 1000).tolist(),
+                    "diameter": driver.model.diameter / 1000
                 }
                 panel_data["drivers"].append(driver_data)
             room_data["panels"].append(panel_data)

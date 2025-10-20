@@ -16,9 +16,7 @@ def main(config_path: str,
         spatialiser.run_sound_check()
     
     try:
-        while True:
-            time.sleep(1)
-            print(spatialiser.input_rms.output_buffer[0][0])
+        spatialiser.graph.wait()
     except KeyboardInterrupt:
         print("\nTerminating...")
         spatialiser.stop()

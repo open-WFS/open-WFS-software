@@ -14,6 +14,22 @@
 		"gridsize" : [ 15.0, 15.0 ],
 		"boxes" : [ 			{
 				"box" : 				{
+					"id" : "obj-3",
+					"maxclass" : "newobj",
+					"numinlets" : 1,
+					"numoutlets" : 3,
+					"outlettype" : [ "", "", "" ],
+					"patching_rect" : [ 848.0, 429.0, 76.0, 22.0 ],
+					"saved_object_attributes" : 					{
+						"parameter_enable" : 0
+					}
+,
+					"text" : "spat5.viewer"
+				}
+
+			}
+, 			{
+				"box" : 				{
 					"id" : "obj-53",
 					"maxclass" : "message",
 					"numinlets" : 2,
@@ -135,7 +151,7 @@
 					"fontname" : "Arial",
 					"fontsize" : 13.0,
 					"id" : "obj-30",
-					"items" : [ "speaker-layout-half-circle-4x1.txt", ",", "speaker-layout-v1-1x4.txt", ",", "speaker-layout-v1-2x4.txt", ",", "speaker-layout-v1-4x1.txt", ",", "speaker-layout-v1-4x2.txt", ",", "speaker-layout-v2a-1x1.txt" ],
+					"items" : [ "speaker-layout-half-circle-4x1.txt", ",", "speaker-layout-v1-1x4.txt", ",", "speaker-layout-v1-2x4.txt", ",", "speaker-layout-v1-4x1.txt", ",", "speaker-layout-v1-4x2.txt", ",", "speaker-layout-v2a-1x1.txt", ",", "speaker-layout-v2a-studio-2x1.txt" ],
 					"maxclass" : "umenu",
 					"numinlets" : 1,
 					"numoutlets" : 3,
@@ -687,7 +703,7 @@
 
 							}
  ],
-						"originid" : "pat-12"
+						"originid" : "pat-2885"
 					}
 ,
 					"patching_rect" : [ 299.0, 750.0, 49.0, 22.0 ],
@@ -874,7 +890,7 @@
 
 							}
  ],
-						"originid" : "pat-24",
+						"originid" : "pat-2895",
 						"styles" : [ 							{
 								"name" : "AudioStatus_Menu",
 								"default" : 								{
@@ -1068,7 +1084,7 @@
 						"parameter_enable" : 0
 					}
 ,
-					"text" : "spat5.cascade~ @channels 32 @mc 1",
+					"text" : "spat5.cascade~ @channels 64 @mc 1",
 					"varname" : "spat5cascade"
 				}
 
@@ -1099,16 +1115,23 @@
 			}
 , 			{
 				"box" : 				{
-					"embed" : 0,
+					"fontname" : "Arial",
+					"fontsize" : 12.0,
 					"id" : "obj-15",
-					"maxclass" : "spat5.viewer.embedded",
+					"linecount" : 3,
+					"maxclass" : "newobj",
 					"numinlets" : 1,
 					"numoutlets" : 3,
 					"outlettype" : [ "", "", "" ],
-					"parameter_enable" : 0,
-					"patching_rect" : [ 522.0, 423.0, 256.0, 128.0 ],
+					"patching_rect" : [ 541.0, 464.0, 475.0, 49.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 30.0, 180.0, 1035.0, 510.0 ],
+					"presentation_linecount" : 15,
+					"presentation_rect" : [ 30.0, 180.0, 100.0, 210.0 ],
+					"saved_object_attributes" : 					{
+						"parameter_enable" : 0
+					}
+,
+					"text" : "spat5.viewer @initwith \"/source/number 16, /speaker/number 64, /speaker/*/orientation/visible 1, /layout double, /window/size 800 600, /speaker/*/vumeter/visible 0, /speaker/*/size 2\"",
 					"varname" : "spat5viewer"
 				}
 
@@ -1198,7 +1221,7 @@
 						"parameter_enable" : 0
 					}
 ,
-					"text" : "spat5.wfs~ @sources 16 @speakers 32 @mc 1",
+					"text" : "spat5.wfs~ @sources 16 @speakers 64 @mc 1",
 					"varname" : "spat5wfs"
 				}
 
@@ -1243,7 +1266,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-8", 0 ],
-					"midpoints" : [ 531.5, 458.5, 107.5, 458.5 ],
+					"midpoints" : [ 550.5, 458.5, 107.5, 458.5 ],
 					"source" : [ "obj-15", 0 ]
 				}
 
@@ -1400,7 +1423,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-15", 0 ],
-					"midpoints" : [ 459.5, 801.0, 1085.0, 801.0, 1085.0, 354.0, 531.5, 354.0 ],
+					"midpoints" : [ 459.5, 801.0, 1085.0, 801.0, 1085.0, 354.0, 550.5, 354.0 ],
 					"source" : [ "obj-51", 0 ]
 				}
 
@@ -1494,7 +1517,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-15", 0 ],
-					"midpoints" : [ 179.5, 495.0, 156.0, 495.0, 156.0, 456.0, 405.0, 456.0, 405.0, 408.0, 531.5, 408.0 ],
+					"midpoints" : [ 179.5, 495.0, 156.0, 495.0, 156.0, 456.0, 405.0, 456.0, 405.0, 408.0, 550.5, 408.0 ],
 					"order" : 0,
 					"source" : [ "obj-9", 0 ]
 				}
@@ -1522,7 +1545,7 @@
 
 			}
  ],
-		"originid" : "pat-4",
+		"originid" : "pat-2877",
 		"parameters" : 		{
 			"obj-12::obj-11" : [ "live.text[4]", "live.text", 0 ],
 			"obj-12::obj-110" : [ "live.text[5]", "live.text", 0 ],
@@ -1667,7 +1690,7 @@
 				"type" : "iLaX"
 			}
 , 			{
-				"name" : "spat5.viewer.embedded.mxo",
+				"name" : "spat5.viewer.mxo",
 				"type" : "iLaX"
 			}
 , 			{

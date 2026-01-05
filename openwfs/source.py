@@ -1,5 +1,5 @@
 import numpy as np
-from signalflow import Node, SpatialEnvironment, SpatialPanner, Clip, Smooth
+from signalflow import *
 
 class Source:
     def __init__(self,
@@ -11,10 +11,7 @@ class Source:
         self.environment = environment
         self.audio = audio
 
-        # from signalflow import WhiteNoise
-        # self.audio = WhiteNoise() * 0.2
-
-        self._radius = 0.25
+        self._radius = 2.5
         self._position = position
         if self._position is None:
             self._position = np.array([0, 0, 0])
@@ -29,10 +26,14 @@ class Source:
                                     x=self.x_smoothed,
                                     y=self.y_smoothed,
                                     z=self.z_smoothed,
-                                    algorithm="dbap",
+                                    algorithm="beamformer",
                                     radius=self.radius_smoothed)
         
-        self.limiter = Clip(self.panner, min=-0.5, max=0.5)
+        num_channels = 96
+        import random
+        
+        # self.delayed = ChannelArray([CombDelay(self.panner[n], feedback=0.95, delay_time=random.uniform(0.01, 0.05)) for n in range(num_channels)])
+        self.limiter = Clip(self.panner, min=-0.1, max=0.1)
         self.limiter.play()
     
     def get_position(self):
@@ -50,6 +51,7 @@ class Source:
         return self._radius
     
     def set_radius(self, radius):
+        print("Setting radius to ", radius)
         self._radius = radius
         self.radius_smoothed.input = radius
     

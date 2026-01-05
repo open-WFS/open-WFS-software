@@ -13,8 +13,8 @@ class Driver:
 class Panel:
     index: int
     model: PanelModel
-    position: list[float]
-    rotation: list[float]
+    position: np.ndarray
+    rotation: np.ndarray
 
     def get_drivers(self):
         drivers = []
@@ -46,8 +46,8 @@ class Panel:
     def from_dict(cls, data: dict):
         panel = cls(index=data["index"],
                     model=data["panel_model"],
-                    position=data["position"],
-                    rotation=data["rotation"])
+                    position=np.array(data["position"]),
+                    rotation=np.array(data["rotation"]))
         return panel
 
     def dump(self):

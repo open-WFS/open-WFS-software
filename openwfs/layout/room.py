@@ -88,6 +88,10 @@ class Room:
         for panel in self.panels:
             panel_data = {
                 "index": panel.index,
+                "model": panel.model.name,
+                "position": (panel.position / 1000).tolist(),
+                "rotation": np.degrees(panel.rotation).tolist(),
+                "dimensions": (panel.model.dimensions / 1000).tolist(),
                 "drivers": []
             }
             for driver in panel.drivers:
@@ -138,8 +142,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Load room layout from a YAML file")
     parser.add_argument("yaml_file", help="Path to the room layout YAML file")
     parser.add_argument("--visualise", "-v", action="store_true", help="Show a 3D visualisation of the room layout")
-    parser.add_argument("--export-spat-layout", "-o", default=None, help="Path to export Spat layout file")
-    parser.add_argument("--export-complete-layout", "-c", default=None, help="Path to export complete room layout YAML file")
+    parser.add_argument("--export-spat-layout", "-o", metavar="PATH", default=None, help="Path to export Spat layout file")
+    parser.add_argument("--export-complete-layout", "-c", metavar="PATH", default=None, help="Path to export complete room layout YAML file")
     args = parser.parse_args()
 
     if not os.path.exists(args.yaml_file):

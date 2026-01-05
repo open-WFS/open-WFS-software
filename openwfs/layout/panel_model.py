@@ -2,6 +2,7 @@ from __future__ import annotations
 import os
 import yaml
 import argparse
+import numpy as np
 from dataclasses import dataclass
 
 
@@ -16,7 +17,7 @@ class DriverModel:
 
 @dataclass
 class PanelModel:
-    dimensions: tuple[float, float, float]
+    dimensions: np.ndarray
     name: str
     drivers: list[DriverModel]
 
@@ -44,7 +45,7 @@ class PanelModel:
         drivers_data = data["drivers"]
         drivers = []
         for driver_info in drivers_data.values():
-            driver = DriverModel(position=driver_info["position"],
+            driver = DriverModel(position=np.array(driver_info["position"]),
                                  type=driver_info.get("type", "tweeter"),
                                  diameter=driver_info.get("diameter", 50.8),
                                  lpf_frequency=driver_info.get("lpf_frequency"),
@@ -52,7 +53,7 @@ class PanelModel:
             drivers.append(driver)
 
         panel_geometry = PanelModel(name=panel_data["name"],
-                                    dimensions=panel_data["dimensions"],
+                                    dimensions=np.array(panel_data["dimensions"]),
                                     drivers=drivers)
 
         return panel_geometry

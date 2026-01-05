@@ -7,7 +7,7 @@ from .layout import Room
 from .source import Source
 from .config import SpatialiserConfig
 
-from signalflow import AudioGraph, AudioGraphConfig, SpatialEnvironment, AudioIn, RMS
+from signalflow import *
 
 
 class Spatialiser:
@@ -32,6 +32,7 @@ class Spatialiser:
         self.graph_config.input_device_name = self.config.input_device_name
         self.graph_config.output_device_name = self.config.output_device_name
         self.graph = AudioGraph(config=self.graph_config)
+        self.graph.poll(1)
 
         if self.show_status:
             self.graph.poll(1)
@@ -67,8 +68,8 @@ class Spatialiser:
     def stop(self):
         # For some reason, calling these lines causes the application to hang sometimes.
         # self.osc_server.shutdown()
-        # self.graph.clear()
-        # self.graph.destroy()
+        self.graph.clear()
+        self.graph.destroy()
         self.sources = []
         
 
@@ -78,7 +79,7 @@ class Spatialiser:
         source_index = int(address.split("/")[2]) - 1
 
         x, y, z = args
-        logger.info("Set source %d position: %s %s %s" % (source_index, x, y, z))
+        logger.debug("Set source %d position: %s %s %s" % (source_index, x, y, z))
         self.sources[source_index].position = [x, y, z]
     
     def handle_osc_set_source_radius(self, address, *args):
@@ -86,24 +87,30 @@ class Spatialiser:
         source_index = int(address.split("/")[2]) - 1
 
         radius = args[0]
-        logger.info("Set source %d radius: %s" % (source_index, radius))
+        logger.debug("Set source %d radius: %s" % (source_index, radius))
         self.sources[source_index].radius = radius
 
     def handle_osc(self, address, *args):
         logger.warning("OSC address not handled: %s (%s)" % (address, args))
 
     
-    def run_sound_check(self):
+    def run_sound_check(self,
+                        type: str = "pinknoise",
+                        interval: float = 0.25):
         """
         Run a sound check in which a short burst of white noise is played sequentially
         across all channels.
         """
-        from signalflow import WhiteNoise, Impulse, ASREnvelope, Counter, ChannelPanner
+        from signalflow import WhiteNoise, PinkNoise, Impulse, ASREnvelope, Counter, ChannelPanner
         logger.info("Starting sound check...")
         logger.info("You should hear bursts of white noise played through each channel sequentially.")
         logger.info("Press ctrl-c to stop sound check.")
-        source = WhiteNoise() * 0.25
-        clock = Impulse(4)
+        if type == "whitenoise":
+            source = WhiteNoise()
+        elif type == "pinknoise":
+            source = PinkNoise()
+        source = source * 0.25
+        clock = Impulse(1 / interval)
         source = source * ASREnvelope(0.0, 0, 0.1, clock=clock)
         counter = Counter(clock, 0, self.num_speakers)
         panner = ChannelPanner(self.num_speakers, input=source, pan=counter)

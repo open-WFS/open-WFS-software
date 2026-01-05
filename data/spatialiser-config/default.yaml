@@ -1,7 +1,7 @@
 osc_port: 9130
 input_device_name: BlackHole 64ch
-# output_device_name: Digiface AVB (24119914)
-output_device_name: XMOS
+output_device_name: Digiface AVB (24119914)
+# output_device_name: HDSPe AoX (30232156a52a1686)
 # output_device_name: Loopback 64ch
-input_buffer_size: 256
-output_buffer_size: 256
+input_buffer_size: 1024
+output_buffer_size: 1024

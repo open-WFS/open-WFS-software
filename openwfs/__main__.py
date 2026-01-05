@@ -7,10 +7,12 @@ import argparse
 def main(config_path: str,
          room_path: str,
          show_status: bool,
-         sound_check: bool = False):
+         sound_check: bool = False,
+         gain: float = 0.0):
     spatialiser = Spatialiser(config_path,
                               room_path,
-                              show_status=show_status)
+                              show_status=show_status,
+                              gain=gain)
     spatialiser.start()
 
     if sound_check:
@@ -29,6 +31,7 @@ if __name__ == "__main__":
     parser.add_argument("--show-status", action="store_true", help="Show audio graph status")
     parser.add_argument("--sound-check", action="store_true", help="Run sound check")
     parser.add_argument("--verbose", "-v", action="store_true", help="Enable verbose output")
+    parser.add_argument("--gain", type=float, default=-12.0, help="Set gain in dB")
     args = parser.parse_args()
 
     logger.remove()
@@ -37,4 +40,5 @@ if __name__ == "__main__":
     main(config_path=args.config,
          room_path=args.room,
          show_status=args.show_status,
-         sound_check=args.sound_check)
+         sound_check=args.sound_check,
+         gain=args.gain)

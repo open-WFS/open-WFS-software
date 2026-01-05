@@ -15,12 +15,14 @@ class Spatialiser:
                  config_name: str,
                  room_layout: str,
                  show_status: bool = False,
-                 num_sources: int = 8):
+                 num_sources: int = 8,
+                 gain: float = 0.0):
         self.config = SpatialiserConfig.from_yaml(config_name)
         self.room = Room.from_yaml(room_layout)
         self.graph = None
         self.show_status = show_status
         self.num_sources = num_sources
+        self.gain = gain
         self.num_speakers = len(self.room.drivers)
         self.sources: list[Source] = []
 
@@ -45,13 +47,18 @@ class Spatialiser:
 
         self.input_rms = RMS(raw_input)
         self.graph.add_node(self.input_rms)
+        self.output_bus = Bus(self.num_speakers)
+        self.output_bus_attenuated = db_to_amplitude(self.gain) * self.output_bus
+        self.limiter = Clip(self.output_bus_attenuated, min=-0.1, max=0.1)
+        self.graph.play(self.limiter)
 
         # Causes crash!
         # for source_index, source_audio in enumerate(raw_input):
         for source_index in range(self.num_sources):
             source = Source(source_index,
                             self.spatial_environment,
-                            raw_input[source_index])
+                            raw_input[source_index],
+                            self.output_bus)
             self.sources.append(source)
 
         

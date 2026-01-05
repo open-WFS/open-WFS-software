@@ -6,10 +6,12 @@ class Source:
                  index: int,
                  environment: SpatialEnvironment,
                  audio: Node,
+                 output_bus: Bus,
                  position: np.ndarray = None):
         self.index = index
         self.environment = environment
         self.audio = audio
+        self.output_bus = output_bus
 
         self._radius = 2.5
         self._position = position
@@ -33,8 +35,7 @@ class Source:
         import random
         
         # self.delayed = ChannelArray([CombDelay(self.panner[n], feedback=0.95, delay_time=random.uniform(0.01, 0.05)) for n in range(num_channels)])
-        self.limiter = Clip(self.panner, min=-0.1, max=0.1)
-        self.limiter.play()
+        self.output_bus.add_input(self.panner)
     
     def get_position(self):
         return self._position
@@ -51,7 +52,6 @@ class Source:
         return self._radius
     
     def set_radius(self, radius):
-        print("Setting radius to ", radius)
         self._radius = radius
         self.radius_smoothed.input = radius
     

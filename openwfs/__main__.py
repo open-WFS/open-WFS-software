@@ -4,6 +4,7 @@ from loguru import logger
 
 import argparse
 
+
 def main(config_path: str,
          room_path: str,
          show_status: bool,
@@ -17,12 +18,13 @@ def main(config_path: str,
 
     if sound_check:
         spatialiser.run_sound_check()
-    
+
     try:
         spatialiser.graph.wait()
     except KeyboardInterrupt:
         print("\nTerminating...")
         spatialiser.stop()
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="OpenWFS Python Panner")
@@ -35,7 +37,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     logger.remove()
-    logger.add(sys.stderr, format="<white>{time}</white> <yellow>{level}</yellow> {message}", level="DEBUG" if args.verbose else "INFO")
+    logger.add(sys.stderr,
+               format="<white>{time:YYYY-MM-DD HH:mm:ss.SSS}</white> <yellow>{level}</yellow> {message}",
+               level="DEBUG" if args.verbose else "INFO",)
 
     main(config_path=args.config,
          room_path=args.room,

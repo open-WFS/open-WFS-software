@@ -1,6 +1,8 @@
 from pythonosc import osc_server
 from pythonosc.dispatcher import Dispatcher
 import threading
+import time
+
 from loguru import logger
 
 from .layout import Room
@@ -34,7 +36,13 @@ class Spatialiser:
         self.graph_config.input_device_name = self.config.input_device_name
         self.graph_config.output_device_name = self.config.output_device_name
         self.graph = AudioGraph(config=self.graph_config)
-        self.graph.poll(1)
+        
+        def show_graph_status():
+            while True:
+                logger.info(self.graph.status)
+                time.sleep(1)
+        thread = threading.Thread(target=show_graph_status, daemon=True)
+        thread.start()
 
         if self.show_status:
             self.graph.poll(1)
@@ -64,6 +72,7 @@ class Spatialiser:
         
         # create an OSC server
         dispatcher = Dispatcher()
+        dispatcher.map("/global/gain", self.handle_osc_global_gain)
         dispatcher.map("/source/*/xyz", self.handle_osc_set_source_position)
         dispatcher.map("/source/*/radius", self.handle_osc_set_source_radius)
         dispatcher.set_default_handler(self.handle_osc)
@@ -78,7 +87,11 @@ class Spatialiser:
         self.graph.clear()
         self.graph.destroy()
         self.sources = []
-        
+    
+    def handle_osc_global_gain(self, address, *args):
+        gain_db = args[0]
+        logger.info("Set global gain: %s dB" % gain_db)
+        self.set_gain(gain_db)
 
     def handle_osc_set_source_position(self, address, *args):
         # Spat OSC format: /source/*/xyz
@@ -122,3 +135,11 @@ class Spatialiser:
         counter = Counter(clock, 0, self.num_speakers)
         panner = ChannelPanner(self.num_speakers, input=source, pan=counter)
         panner.play()
+
+    def get_gain(self) -> float:
+        return self.gain
+    
+    def set_gain(self, gain: float):
+        self.gain = gain
+        if self.output_bus_attenuated is not None:
+            self.output_bus_attenuated.input0 = db_to_amplitude(gain)

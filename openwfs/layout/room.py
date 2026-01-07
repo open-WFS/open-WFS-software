@@ -17,6 +17,10 @@ class Room:
     origin: list[float]
     panels: list[Panel]
 
+    def __str__(self):
+        dimensions_str = "x".join([f"{d/1000:.0f}" for d in self.dimensions[:2]]) + "m"
+        return f"{self.name} ({dimensions_str}, {len(self.panels)} panels, {len(self.drivers)} drivers)"
+
     @classmethod
     def from_yaml(cls, file_path: str):
         if not os.path.exists(file_path):

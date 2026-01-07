@@ -15,6 +15,7 @@ class Source:
 
         self._radius = 2.5
         self._position = position
+        self._algorithm = "beamformer"
         if self._position is None:
             self._position = np.array([0, 0, 0])
 
@@ -28,11 +29,11 @@ class Source:
                                     x=self.x_smoothed,
                                     y=self.y_smoothed,
                                     z=self.z_smoothed,
-                                    algorithm="beamformer",
+                                    algorithm=self._algorithm,
                                     radius=self.radius_smoothed)
-        
-        num_channels = 96
-        import random
+    
+        self.is_muted = False
+        self.is_soloed = False
         
         # self.delayed = ChannelArray([CombDelay(self.panner[n], feedback=0.95, delay_time=random.uniform(0.01, 0.05)) for n in range(num_channels)])
         self.output_bus.add_input(self.panner)
@@ -56,3 +57,11 @@ class Source:
         self.radius_smoothed.input = radius
     
     radius = property(get_radius, set_radius)
+
+    def get_algorithm(self):
+        return self.panner.algorithm
+
+    def set_algorithm(self, algorithm):
+        self.panner.set_property("algorithm", algorithm)
+
+    algorithm = property(get_algorithm, set_algorithm)

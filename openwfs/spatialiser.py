@@ -27,8 +27,12 @@ class Spatialiser:
         self.show_status = show_status
         self.num_sources = num_sources
         self.gain = gain
-        self.num_speakers = len(self.room.drivers)
+        self.num_drivers = len(self.room.drivers)
         self.sources: list[Source] = []
+
+    @property
+    def panels(self):
+        return self.room.panels
 
     def start(self):
         # Create the AudioGraph
@@ -57,8 +61,9 @@ class Spatialiser:
 
         self.input_rms = RMS(raw_input)
         self.graph.add_node(self.input_rms)
-        self.output_bus = Bus(self.num_speakers)
-        self.output_bus_attenuated = db_to_amplitude(self.gain) * self.output_bus
+        self.output_bus = Bus(self.num_drivers)
+        self.output_bus_masked = self.output_bus * ChannelArray([1.0 for _ in range(self.num_drivers)])
+        self.output_bus_attenuated = db_to_amplitude(self.gain) * self.output_bus_masked
         self.limiter = Clip(self.output_bus_attenuated, min=-0.1, max=0.1)
         self.graph.play(self.limiter)
 
@@ -80,6 +85,8 @@ class Spatialiser:
         dispatcher.map("/source/*/algorithm", self.handle_osc_set_source_algorithm)
         dispatcher.map("/source/*/solo", self.handle_osc_source_solo)
         dispatcher.map("/source/*/mute", self.handle_osc_source_mute)
+        dispatcher.map("/speaker/*/solo", self.handle_osc_speaker_solo)
+        dispatcher.map("/speaker/*/mute", self.handle_osc_speaker_mute)
         dispatcher.set_default_handler(self.handle_osc)
         self.osc_server = osc_server.ThreadingOSCUDPServer(("127.0.0.1", self.config.osc_port),
                                                            dispatcher)
@@ -176,6 +183,38 @@ class Spatialiser:
             if (not self.any_source_is_soloed) or source.is_soloed:
                 self.output_bus.add_input(source.panner)
             source.is_muted = False
+
+    def handle_osc_speaker_solo(self, address, *args):
+        speaker_index = int(address.split("/")[2])
+        solo = args[0]
+        self.panels[speaker_index].is_soloed = solo
+        self.update_speaker_mask()
+
+    def handle_osc_speaker_mute(self, address, *args):
+        speaker_index = int(address.split("/")[2])
+        mute = args[0]
+        self.panels[speaker_index].is_muted = mute
+        self.update_speaker_mask()
+    
+    def update_speaker_mask(self):
+        driver_mask = []
+        is_any_panel_soloed = any([panel.is_soloed for panel in self.panels])
+        for panel in self.panels:
+            panel_driver_mask = []
+            for _ in panel.drivers:
+                if is_any_panel_soloed:
+                    if panel.is_soloed and (not panel.is_muted):
+                        panel_driver_mask.append(1.0)
+                    else:
+                        panel_driver_mask.append(0.0)
+                else:
+                    if panel.is_muted:
+                        panel_driver_mask.append(0.0)
+                    else:
+                        panel_driver_mask.append(1.0)
+            driver_mask += panel_driver_mask
+
+        self.output_bus_masked.input1 = driver_mask
 
     def handle_osc(self, address, *args):
         logger.warning("OSC address not handled: %s (%s)" % (address, args))

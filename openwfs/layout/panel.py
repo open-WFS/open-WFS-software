@@ -15,6 +15,8 @@ class Panel:
     model: PanelModel
     position: np.ndarray
     rotation: np.ndarray
+    is_muted: bool = False
+    is_soloed: bool = False
 
     def get_drivers(self):
         drivers = []

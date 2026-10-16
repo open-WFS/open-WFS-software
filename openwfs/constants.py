@@ -43,23 +43,12 @@ module_layout = [
     Module([0.533,          1.0, 1.0], 0),
     Module([1.05 + 0.15,   0.5, 1.0], np.pi/2),
 ]
-module_layout = [
-    Module([-1.1, 0.7, 0.0], 1.0 * np.pi / 2),  # left rear - DONE
-    Module([-0.533, 1.221, 0.0], 0),  # centre left - DONE
-    Module([0.533, 1.221, 0.0], 0),  # centre right - DONE
-    Module([1.1, 0.7, 0.0], -1.0 * np.pi / 2),  # left front - DONE
-#    Module([0.99, 0.533, 0.0], -1.0 * np.pi / 2),      # right front - DONE
-#    Module([0.99, -0.533, 0.0], -1.0 * np.pi / 2),  # right rear - DONE
-#    Module([-0.533, 0.0, 0.6], 0),  # top left - DONE
-#    Module([0.533, 0.0, 0.6], 0),  # top right - DONE
-]
-
-num_speakers = num_speakers_per_module * len(module_layout)
 
 #--------------------------------------------------------------------------------
 # If the LFE channel is enabled, a low-passed mono mixdown of the output
 # content is sent to this channel index.
 #--------------------------------------------------------------------------------
+num_speakers = num_speakers_per_module * len(module_layout)
 lfe_channel_index = num_speakers - 1
 crossover_frequency_lpf = 180
 crossover_frequency_hpf = 30

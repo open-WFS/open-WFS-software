@@ -3,12 +3,10 @@ import numpy as np
 
 #--------------------------------------------------------------------------------
 # The names of the audio input and output devices to use.
-# TODO: input_device_name is currently not honoured due as it is not supported
-# in SignalFlow. The system's default audio input device is used instead.
+# Note that partial name matches are allowed, so you can just specify the prefix.
 #--------------------------------------------------------------------------------
 input_device_name = "BlackHole 64ch"
-output_device_name = "Digiface AVB (24119914)"
-# output_device_name = "BlackHole 64ch"
+output_device_name = "Digiface AVB"
 midi_input_device_name = "IAC Driver Bus 1"
 
 #--------------------------------------------------------------------------------

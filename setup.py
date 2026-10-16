@@ -10,7 +10,7 @@ setup(
     author_email='daniel@jones.org.uk',
     url='https://github.com/open-WFS/open-WFS-software',
     packages=find_packages(),
-    install_requires=['python-osc', 'mido', 'python-rtmidi', 'pandas', 'numpy', 'python-osc', 'coloredlogs'],
+    install_requires=['python-osc', 'mido', 'python-rtmidi', 'pandas', 'numpy', 'python-osc', 'coloredlogs', 'signalflow'],
     keywords=['sound', 'audio', 'spatial'],
     classifiers=[
         'Topic :: Multimedia :: Sound/Audio',

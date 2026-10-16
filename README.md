@@ -12,7 +12,18 @@ These instructions are for macOS, and assume you have already installed the [gen
 
  - Install [BlackHole 64ch](https://existential.audio/blackhole/): This is used to route audio from your playback system to the panner. You can also use [Loopback](https://rogueamoeba.com/loopback/).
  - Install Max 8 and the [Spat](https://forum.ircam.fr/projects/detail/spat/) spatialisation library.
- - With Python 3.8 or above, run `pip3 install -r requirements.txt` from within this repo to install the Python scripting requirements.
+ - With Python 3.9 or above:
+ 
+ ```bash
+ # Create a virtual environment
+ python3 -m venv .venv
+
+ # Activate the virtual environment
+ . .venv/bin/activate
+
+ # Install the openwfs package and requirements, in editable mode
+ pip3 install -e .
+ ```
 
 ### 2. Configure the spatial layout of your system
 

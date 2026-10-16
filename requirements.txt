@@ -1,7 +1,0 @@
-mido
-python-rtmidi
-pandas
-numpy
-python-osc
-coloredlogs
-signalflow

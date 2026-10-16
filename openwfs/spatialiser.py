@@ -302,8 +302,8 @@ class Spatialiser:
         # output = output + "/speaker/*/direction/xy %.3f %.3f" % (direction_x, direction_y)
         # output = output + "/speakers/direction"
         for index, speaker in enumerate(self.speakers):
-            direction_y = -np.cos(speaker.orientation)
-            direction_x = np.sin(speaker.orientation)
+            direction_y = np.cos(speaker.orientation)
+            direction_x = -np.sin(speaker.orientation)
             output = output + "/speaker/%d/direction/xy %.3f %.3f\n" % (index + 1, direction_x, direction_y)
             # output = output + " %.3f %.3f" % (direction_x, direction_y)
         return output

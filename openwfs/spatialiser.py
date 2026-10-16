@@ -73,8 +73,8 @@ class Spatialiser:
 
         for module in module_layout:
             for row_index, speaker in list(speaker_layout.iterrows())[:num_speakers_per_module]:
-                module_speaker_x = module.position[0] + np.cos(module.rotation) * (speaker.x * 0.001)
-                module_speaker_y = module.position[1] + np.sin(module.rotation) * (speaker.x * 0.001)
+                module_speaker_x = module.position[0] + np.cos(-module.rotation) * (speaker.x * 0.001)
+                module_speaker_y = module.position[1] + np.sin(-module.rotation) * (speaker.x * 0.001)
                 module_speaker_z = module.position[2] + speaker.y * 0.001
                 self.add_speaker([module_speaker_x,
                                   module_speaker_y,

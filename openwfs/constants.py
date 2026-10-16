@@ -35,12 +35,34 @@ num_sources = 8
 # The centre coordinates of each OpenWFS module, in metres.
 # For the Y-axis, positive values are in front of the listener.
 #--------------------------------------------------------------------------------
-module_layout = [
+module_layout_horseshoe = [
     Module([-1.05 - 0.15,  0.5, 1.0], -np.pi/2),
     Module([-0.533,         1.0, 1.0], 0),
     Module([0.533,          1.0, 1.0], 0),
     Module([1.05 + 0.15,   0.5, 1.0], np.pi/2),
 ]
+
+#--------------------------------------------------------------------------------
+# Octagon of 8 modules (1.05m wide, 0.16m tall, 0.18m deep) around the listener.
+# Front faces meet edge-to-edge, forming a regular octagon with 1.05m sides:
+#   front-face apothem = 1.05 / (2 * tan(pi/8))  = 1.2675m
+#   centroid radius    = 1.2675 + 0.18 / 2        = 1.3575m
+#   diagonal offset    = 1.3575 * cos(pi/4)       = 0.9599m
+# Ordered clockwise from the front module (viewed from above).
+#--------------------------------------------------------------------------------
+module_layout_octagon = [
+    Module([ 0.0,     1.3575, 1.0],  0),
+    Module([ 0.9599,  0.9599, 1.0],  np.pi/4),
+    Module([ 1.3575,  0.0,    1.0],  np.pi/2),
+    Module([ 0.9599, -0.9599, 1.0],  3*np.pi/4),
+    Module([ 0.0,    -1.3575, 1.0],  np.pi),
+    Module([-0.9599, -0.9599, 1.0], -3*np.pi/4),
+    Module([-1.3575,  0.0,    1.0], -np.pi/2),
+    Module([-0.9599,  0.9599, 1.0], -np.pi/4),
+]
+
+module_layout = module_layout_octagon
+
 
 #--------------------------------------------------------------------------------
 # If the LFE channel is enabled, a low-passed mono mixdown of the output

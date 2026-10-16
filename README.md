@@ -50,7 +50,7 @@ This can be done with the [OpenWFS Spatialiser](https://github.com/open-WFS/open
 Output the driver coordinates in a format that Spat can read, to a file called `speaker-layout.txt`. From the top level of this repo:
 
 ```
-python3 bin/generate-spat-layout max/speaker-layout.txt
+python3 bin/generate-spat-layout.py max/speaker-layout.txt
 ```
 
 ### 5. Open Spat
